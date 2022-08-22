@@ -1,0 +1,8 @@
+*.zst
+*.tar.gz
+*.img
+*.iso
+pkg/
+src/
+venv/
+vm_mnt/
