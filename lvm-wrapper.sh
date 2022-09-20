@@ -28,6 +28,46 @@ lvm_get_volumes () {
   lvm_handle_error "$?" "$lvm_get_volumes_ret"
 }
 
+lvm_remove_snapshot () {
+  debug "func: lvm_remove_snapshot"
+  local vg="$1"
+  local lv="$2"
+  info "Removing old snapshot $vg/$lv"
+  local output
+
+  output="$(lvm lvremove "$vg/$lv" -y 2>&1)"
+  lvm_handle_error "$?" "$output"
+}
+
+lvm_restore_snapshot () {
+  debug "func: lvm_restore_snapshot"
+  local snapshot="$1"
+  warn "Restoring from snapshot $snapshot"
+  # Since this command takes awhile, we just want to do the simple thing and display everything to the screen
+  # That way the user will see the in-progress restore state
+  lvm lvconvert --merge "$snapshot"
+  lvm_handle_error "$?" ""
+}
+
+lvm_add_tag () {
+  debug "func: lvm_add_tag"
+  local vg="$1"
+  local lv="$2"
+  local tag="$3"
+  output="$(lvm lvchange --addtag "$tag" 2>&1)"
+  lvm_handle_error "$?" "$output"
+}
+
+lvm_del_tag () {
+  debug "func: lvm_del_tag"
+  local vg="$1"
+  local lv="$2"
+  local tag="$3"
+  output="$(lvm lvchange --deltag "$tag" 2>&1)"
+  lvm_handle_error "$?" "$output"
+}
+
+
 lvm_handle_error () {
   local code=$1
   local output=$2
