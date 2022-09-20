@@ -1,6 +1,8 @@
 #! /bin/ash
 # shellcheck shell=dash
 
+set -u
+
 is_number () {
   debug "func: is_number"
   local item="${1:-}"
@@ -12,6 +14,7 @@ is_number () {
 }
 
 increment () {
+  debug "func: increment"
   local val="$1"
   is_number "$val"
   if [ -z "$is_number_ret" ] ; then
@@ -20,8 +23,23 @@ increment () {
   increment_ret="$((val+1))"
 }
 
+at_index() {
+  debug "func: at_index"
+  local items="${1:-}"
+  local i="$2"
+  # index is 0 based, but the positional args are 1-based
+  increment "$i"
+  i="$increment_ret"
+  at_index_ret=
+  if [ -n "$items" ] ; then
+    # shellcheck disable=SC2086
+    set -- $items || exit "$?" 
+    at_index_ret=$(eval "echo \${$i}")
+  fi
+}
+
 press_enter_to_boot () {
-  local code="$1"
+  local code="${1:-1}"
   if [ -n "$INTERACTIVE" ] ; then
     get_user_input "Press (enter) to continue booting"
   fi
@@ -43,14 +61,14 @@ error () {
 
 warn () {
   local message="$1"
-  if [ -n "$LOG_LEVEL" ] && [ "$LOG_LEVEL" -ge 1 ] ; then
+  if [ -n "${LOG_LEVEL:-2}" ] && [ "${LOG_LEVEL:-2}" -ge 1 ] ; then
     printf "[lvm-autosnap] %s\n" "$message" >&2
   fi
 }
 
 info () {
   local message="$1"
-  if [ -n "$LOG_LEVEL" ] && [ "$LOG_LEVEL" -ge 2 ] ; then
+  if [ -n "${LOG_LEVEL:-2}" ] && [ "${LOG_LEVEL:-2}" -ge 2 ] ; then
     printf "[lvm-autosnap] %s\n" "$message"
   fi
 }
@@ -62,7 +80,7 @@ prompt () {
 
 debug () {
   local message="$1"
-  if [ -n "$LOG_LEVEL" ] && [ "$LOG_LEVEL" -ge 3 ] ; then
+  if [ -n "${LOG_LEVEL:-2}" ] && [ "${LOG_LEVEL:-2}" -ge 3 ] ; then
     printf "[lvm-autosnap] %s\n" "$message"
   fi
 }
