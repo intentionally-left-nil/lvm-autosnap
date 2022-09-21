@@ -16,13 +16,10 @@ lvol_field () {
   debug "func: lvol_field"
   local lvol="$1"
   local name="$2"
-  local oldifs="$IFS"
 
-  lvol_index "$name"
-  IFS="|"
-  at_index "$lvol" "$lvol_index_ret"
-  IFS="$oldifs"
-  lvol_field_ret="$at_index_ret"
+  lvol_columns
+  field_by_header "$lvol" "$lvol_columns_ret" "$name"
+  lvol_field_ret="$field_by_header_ret"
 }
 
 lvol_tag () {
@@ -47,24 +44,4 @@ lvol_tag () {
     IFS=","
   done
   IFS="$oldifs"
-}
-
-lvol_index () {
-  debug "func: lvol_index"
-  local name="$1"
-  lvol_index_ret=0
-  lvol_columns
-  local oldifs="$IFS"
-  IFS=","
-  local header
-
-  for header in $lvol_columns_ret ; do
-    if [ "$header" = "$name" ] ; then
-      return
-    fi
-    increment "$lvol_index_ret"
-    lvol_index_ret="$increment_ret"
-  done
-  error "Missing column $name"
-  press_enter_to_boot 1
 }

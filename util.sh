@@ -33,9 +33,74 @@ at_index() {
   at_index_ret=
   if [ -n "$items" ] ; then
     # shellcheck disable=SC2086
-    set -- $items || exit "$?" 
-    at_index_ret=$(eval "echo \${$i}")
+    set -- $items || exit "$?"
+    if [ "$i" -le "$#" ] ; then
+      at_index_ret=$(eval "echo \${$i}")
+    fi
   fi
+}
+
+header_index () {
+  debug "func: header_index"
+  local headers="$1"
+  local name="$2"
+  header_index_ret=0
+  local oldifs="$IFS"
+  IFS=","
+  local header
+
+  for header in $headers ; do
+    if [ "$header" = "$name" ] ; then
+      IFS="$oldifs"
+      return
+    fi
+    increment "$header_index_ret"
+    header_index_ret="$increment_ret"
+  done
+  IFS="$oldifs"
+  error "Missing header $name"
+  press_enter_to_boot 1
+}
+
+field_by_header () {
+  debug "func: field_by_header"
+  local row="$1"
+  local headers="$2"
+  local name="$3"
+  local oldifs="$IFS"
+
+  header_index "$headers" "$name"
+  IFS="|"
+  at_index "$row" "$header_index_ret"
+  IFS="$oldifs"
+  trim "$at_index_ret"
+  field_by_header_ret="$trim_ret"
+}
+
+trim () {
+  local str="$1"
+  trim_ret=
+
+  # First, trim the leading whitespace, recursing if necessary
+  # Split the string into the first character, and the remaining
+  local first="${str%"${str#?}"}"
+  local rest="${str#?}"
+  # If the first character is a space, recurse on the remainder, else continue
+  case $first in
+    ([[:space:]]) trim "$rest"; return;;
+  esac
+
+  # Then trim the trailing whitespace, recursing if necessary
+  # Split the string into every other character, and the last character
+  local last="${str#"${str%?}"}"
+  local beginning="${str%?}"
+  # If the last character is a space, recurse on the remainder, else we are finished
+  case $last in
+    ([[:space:]]) trim "$beginning"; return;;
+  esac
+  # Neither the first nor the last character is a space
+  # This is the only recursive call that should set trim_ret, and then the stack should unwind
+  trim_ret="$str"
 }
 
 press_enter_to_boot () {
