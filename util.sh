@@ -77,29 +77,13 @@ field_by_header () {
   field_by_header_ret="$trim_ret"
 }
 
-trim () {
+trim() {
+  #https://stackoverflow.com/a/3352015/3029173
   local str="$1"
-  trim_ret=
-
-  # First, trim the leading whitespace, recursing if necessary
-  # Split the string into the first character, and the remaining
-  local first="${str%"${str#?}"}"
-  local rest="${str#?}"
-  # If the first character is a space, recurse on the remainder, else continue
-  case $first in
-    ([[:space:]]) trim "$rest"; return;;
-  esac
-
-  # Then trim the trailing whitespace, recursing if necessary
-  # Split the string into every other character, and the last character
-  local last="${str#"${str%?}"}"
-  local beginning="${str%?}"
-  # If the last character is a space, recurse on the remainder, else we are finished
-  case $last in
-    ([[:space:]]) trim "$beginning"; return;;
-  esac
-  # Neither the first nor the last character is a space
-  # This is the only recursive call that should set trim_ret, and then the stack should unwind
+  # remove leading whitespace characters
+  str="${str#"${str%%[![:space:]]*}"}"
+  # remove trailing whitespace characters
+  str="${str%"${str##*[![:space:]]}"}"
   trim_ret="$str"
 }
 
