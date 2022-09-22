@@ -63,3 +63,11 @@ config_field () {
   config_field_ret="$field_by_header_ret"
 }
 
+get_root_config () {
+  local oldifs="$IFS"
+  IFS="/"
+  at_index "$CONFIGS" 0
+  get_root_config_ret="$at_index_ret"
+  IFS="$oldifs"
+}
+

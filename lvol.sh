@@ -9,7 +9,7 @@ set -u
 
 lvol_columns() {
   debug "func: lvol_columns"
-  lvol_columns_ret="vg_name,lv_name,lv_tags,lv_time,origin,lv_snapshot_invalid"
+  lvol_columns_ret="vg_name,lv_name,lv_uuid,lv_tags,lv_time,origin,lv_snapshot_invalid"
 }
 
 lvol_field () {
@@ -44,4 +44,23 @@ lvol_tag () {
     IFS=","
   done
   IFS="$oldifs"
+}
+
+lvol_display_name () {
+  debug "func lvol_display_name"
+  local lvol="$1"
+  lvol_field "$lvol" "vg_name"
+  local vg="$lvol_field_ret"
+
+  lvol_field "$lvol" "origin"
+  local origin="$lvol_field_ret"
+  if [ -z "$origin" ] ; then
+    lvol_field "$lvol" "lv_name"
+    local lv="$lvol_field_ret"
+    lvol_display_name_ret="$vg/$lv"
+  else
+    lvol_field "$lvol" "lv_time"
+    local ts="$lvol_field_ret"
+    lvol_display_name_ret="snapshot of $vg/$origin @ $ts"
+  fi
 }

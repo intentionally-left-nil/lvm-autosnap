@@ -15,9 +15,15 @@ lvm_create_snapshot () {
   local lv="$2"
   local size="$3"
   local pending_count="$4"
+  local primary_snapshot="$5"
   local output
-  output="$(lvm lvcreate --permission=r --size="$size" --snapshot --monitor n --addtag autosnap:true --addtag "pending:$pending_count" "$vg/$lv" 2>&1)"
+  output="$(lvm lvcreate --permission=r --size="$size" --snapshot --monitor n --addtag autosnap:true --addtag "pending:$pending_count" --addtag "primary:$primary_snapshot" "$vg/$lv" 2>&1)"
   lvm_handle_error "$?" "$output"
+  local oldifs="$IFS"
+  IFS=\"
+  at_index "$output" 1
+  lvm_create_snapshot_ret="$at_index_ret"
+  IFS="$oldifs"
 }
 
 lvm_get_volumes () {
@@ -30,11 +36,15 @@ lvm_get_volumes () {
 
 lvm_remove_snapshot () {
   debug "func: lvm_remove_snapshot"
-  local vg="$1"
-  local lv="$2"
-  info "Removing old snapshot $vg/$lv"
-  local output
+  local lvol="$1"
+  lvol_field "$lvol" "vg_name"
+  local vg="$lvol_field_ret"
+  lvol_field "$lvol" "lv_name"
+  local lv="$lvol_field_ret"
 
+  lvol_display_name "$lvol"
+  info "Removing $lvol_display_name_ret"
+  local output
   output="$(lvm lvremove "$vg/$lv" -y 2>&1)"
   lvm_handle_error "$?" "$output"
 }
@@ -51,19 +61,28 @@ lvm_restore_snapshot () {
 
 lvm_add_tag () {
   debug "func: lvm_add_tag"
-  local vg="$1"
-  local lv="$2"
-  local tag="$3"
-  output="$(lvm lvchange --addtag "$tag" 2>&1)"
+  local lvol="$1"
+  local tag="$2"
+
+  lvol_field "$lvol" "vg_name"
+  local vg="$lvol_field_ret"
+  lvol_field "$lvol" "lv_name"
+  local lv="$lvol_field_ret"
+  output="$(lvm lvchange --addtag "$tag" "$vg/$lv" 2>&1)"
   lvm_handle_error "$?" "$output"
 }
 
 lvm_del_tag () {
   debug "func: lvm_del_tag"
-  local vg="$1"
-  local lv="$2"
-  local tag="$3"
-  output="$(lvm lvchange --deltag "$tag" 2>&1)"
+  local lvol="$1"
+  local tag="$2"
+
+  lvol_field "$lvol" "vg_name"
+  local vg="$lvol_field_ret"
+  lvol_field "$lvol" "lv_name"
+  local lv="$lvol_field_ret"
+
+  output="$(lvm lvchange --deltag "$tag" "$vg/$lv" 2>&1)"
   lvm_handle_error "$?" "$output"
 }
 
