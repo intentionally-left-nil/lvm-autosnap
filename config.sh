@@ -71,3 +71,80 @@ get_root_config () {
   IFS="$oldifs"
 }
 
+validate_config () {
+  validate_config_ret=
+  LOG_LEVEL="${LOG_LEVEL:-2}"
+  is_number "$LOG_LEVEL"
+  if [ -z "$is_number_ret" ] || [ "$LOG_LEVEL" -lt 0 ] || [ "$LOG_LEVEL" -gt 3 ] ; then
+    LOG_LEVEL=2
+  fi
+
+  is_number "$MAX_SNAPSHOTS"
+  if [ -z "$is_number_ret" ] || [ "$MAX_SNAPSHOTS" -le 0 ] ; then
+    error "MAX_SNAPSHOTS($MAX_SNAPSHOTS) is invalid"
+    return
+  fi
+
+  is_number "$RESTORE_AFTER"
+  if [ -z "$is_number_ret" ] || [ "$RESTORE_AFTER" -le 0 ] || [ "$RESTORE_AFTER" -gt 9 ] ; then
+    error "RESTORE_AFTER($RESTORE_AFTER) is invalid"
+    return
+  fi
+
+  if [ -n "$MODE" ] && [ "$MODE" != "backup" ] && [ "$MODE" != "restore" ] ; then 
+    error "MODE($MODE) is invalid"
+    return
+  fi
+
+  if [ -z "$CONFIGS" ] ; then
+    error "Missing CONFIGS"
+    return
+  fi
+
+  local oldifs="$IFS"
+  IFS="/"
+  for config in $CONFIGS ; do
+    config_field "$config" "vg_name"
+    local vg="$config_field_ret"
+    # From man lvm: The valid characters for VG and LV names are: a-z A-Z 0-9 + _ . -
+    if [ -z "$vg" ] ; then
+      error "Invalid vg($vg) for $config";
+      return
+    fi
+    case $vg in
+      (*[!0-9a-zA-Z+_.-]*|'') error "Invalid vg($vg) for $config"; return;;
+    esac
+
+    config_field "$config" "lv_name"
+    local lv="$config_field_ret"
+    # From man lvm: The valid characters for VG and LV names are: a-z A-Z 0-9 + _ . -
+    if [ -z "$lv" ] ; then
+      error "Invalid lv($lv) for $config";
+      return
+    fi
+    case $lv in
+      (*[!0-9a-zA-Z+_.-]*|'') error "Invalid lv($lv) for $config"; return;;
+    esac
+
+    config_field "$config" "snapshot_size"
+    local size="$config_field_ret"
+    if [ -z "$size" ] ; then
+      error "Invalid size($size) for $config";
+      return
+    fi
+    case $size in
+      ([0-9][kKmMgGtT]);;
+      ([0-9][0-9][kKmMgGtT]);;
+      ([0-9][0-9][0-9][kKmMgGtT]);;
+      ([0-9][0-9][0-9][0-9][kKmMgGtT]);;
+      ([0-9][0-9][0-9][0-9][0-9][kKmMgGtT]);;
+      ([0-9][0-9][0-9][0-9][0-9][0-9][kKmMgGtT]);;
+      ([0-9][0-9][0-9][0-9][0-9][0-9][0-9][kKmMgGtT]);;
+      ([0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9][kKmMgGtT]);;
+      ([0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9][kKmMgGtT]);;
+      (*) error "Invalid size($size) for $config"; return;;
+    esac
+  done
+  IFS="$oldifs"
+  validate_config_ret=1
+}
