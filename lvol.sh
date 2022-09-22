@@ -64,3 +64,13 @@ lvol_display_name () {
     lvol_display_name_ret="snapshot of $vg/$origin @ $ts"
   fi
 }
+
+first_lvol () {
+  local lvols="$1"
+  local oldifs="$IFS"
+  IFS="
+"
+  at_index "$lvols" 0
+  first_lvol_ret="$at_index_ret"
+  IFS="$oldifs"
+}

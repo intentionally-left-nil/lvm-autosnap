@@ -1,0 +1,8 @@
+[Unit]
+Description="Wait until the system has valid uptime, then mark the lvm-autosnap as good"
+
+[Timer]
+OnBootSec=30
+
+[Install]
+WantedBy=graphical.target

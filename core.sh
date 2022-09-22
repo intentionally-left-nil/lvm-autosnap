@@ -134,13 +134,8 @@ remove_invalid_snapshots () {
 root_pending_count () {
   root_pending_count_ret=0
   lvm_get_volumes "lv_tags=autosnap:true,lv_tags=primary:true" "-lv_time"
-  local oldifs="$IFS"
-  IFS="
-"
-  at_index "$lvm_get_volumes_ret" 0
-  local lvol="$at_index_ret"
-  IFS="$oldifs"
-
+  first_lvol "$lvm_get_volumes_ret"
+  local lvol="$first_lvol_ret"
   if [ -n "$lvol" ] ; then
     lvol_tag "$lvol" "pending"
     root_pending_count_ret="$lvol_tag_ret"
