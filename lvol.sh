@@ -18,7 +18,7 @@ lvol_field () {
   local name="$2"
 
   lvol_columns
-  field_by_header "$lvol" "$lvol_columns_ret" "$name"
+  field_by_header "$lvol" "$lvol_columns_ret" "$name" "|"
   lvol_field_ret="$field_by_header_ret"
 }
 

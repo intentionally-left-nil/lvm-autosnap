@@ -59,7 +59,7 @@ config_field () {
   local config="$1"
   local name="$2"
   config_columns
-  field_by_header "$config" "$config_columns_ret" "$name"
+  field_by_header "$config" "$config_columns_ret" "$name" ","
   config_field_ret="$field_by_header_ret"
 }
 

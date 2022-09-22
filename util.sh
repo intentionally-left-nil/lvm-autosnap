@@ -67,10 +67,11 @@ field_by_header () {
   local row="$1"
   local headers="$2"
   local name="$3"
+  local delim="$4"
   local oldifs="$IFS"
 
   header_index "$headers" "$name"
-  IFS="|"
+  IFS="$delim"
   at_index "$row" "$header_index_ret"
   IFS="$oldifs"
   trim "$at_index_ret"
@@ -89,7 +90,7 @@ trim() {
 
 press_enter_to_boot () {
   local code="${1:-1}"
-  if [ -n "$INTERACTIVE" ] ; then
+  if [ -n "${INTERACTIVE:-}" ] ; then
     get_user_input "Press (enter) to continue booting"
   fi
   exit "$code"

@@ -16,8 +16,13 @@ lvm_create_snapshot () {
   local size="$3"
   local pending_count="$4"
   local primary_snapshot="$5"
+  local group_id="${6:-}"
   local output
-  output="$(lvm lvcreate --permission=r --size="$size" --snapshot --monitor n --addtag autosnap:true --addtag "pending:$pending_count" --addtag "primary:$primary_snapshot" "$vg/$lv" 2>&1)"
+  if [ -z "$group_id" ] ; then
+    output="$(lvm lvcreate --permission=r --size="$size" --snapshot --monitor n --addtag autosnap:true --addtag "pending:$pending_count" --addtag "primary:$primary_snapshot" "$vg/$lv" 2>&1)"
+  else
+    output="$(lvm lvcreate --permission=r --size="$size" --snapshot --monitor n --addtag autosnap:true --addtag "pending:$pending_count" --addtag "primary:$primary_snapshot" --addtag "group_id:$group_id" "$vg/$lv" 2>&1)"
+  fi
   lvm_handle_error "$?" "$output"
   local oldifs="$IFS"
   IFS=\"
