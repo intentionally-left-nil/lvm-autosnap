@@ -15,6 +15,32 @@ set -u
 # shellcheck source=config.sh
 . "$SCRIPT_PATH/config.sh"
 
+main () {
+  config_set_defaults
+  load_config_from_env
+  local cmdline
+  cmdline="$(cat /proc/cmdline)"
+  # shellcheck disable=SC2181
+  if [ "$?" -eq 0 ] ; then
+    load_config_from_cmdline "$cmdline"
+  else
+    warn "error reading from /proc/cmdline"
+  fi
+
+  if [ -n "$LOG_LEVEL" ] && [ "$LOG_LEVEL" -ge 3 ] ; then
+    # log all commands
+    set -x
+  fi
+  debug "func: main"
+
+  validate_config
+  if [ -z "$validate_config_ret" ] ; then
+    press_enter_to_boot 1
+  fi
+
+  create_new_snapshots
+}
+
 create_new_snapshots () {
   root_pending_count
   increment "$root_pending_count_ret"

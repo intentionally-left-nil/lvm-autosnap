@@ -1,6 +1,5 @@
 #! /bin/ash
 # shellcheck shell=dash
-# shellcheck disable=SC2086
 
 set -u
 
@@ -19,7 +18,7 @@ config_set_defaults () {
 load_config_from_env () {
   debug "func: load_config_from_env"
   # shellcheck source=/dev/null
-  . /etc/lvm-autosnap/lvm-autosnap.env
+  . /etc/lvm-autosnap.env
 }
 
 load_config_from_cmdline () {

@@ -1,0 +1,5 @@
+#!/bin/sh
+sed -i -z -r 's#sha256sums=\([^)]+\)##' PKGBUILD
+sed -i -e :a -e '/^\n*$/{$d;N;};/\n$/ba' PKGBUILD # remove trailing newlines
+printf "\n%s\n\n" "$(makepkg -g)" >> PKGBUILD
+git add PKGBUILD
