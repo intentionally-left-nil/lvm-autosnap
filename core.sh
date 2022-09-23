@@ -38,6 +38,7 @@ main () {
     press_enter_to_boot 1
   fi
 
+  remove_invalid_snapshots
   create_new_snapshots
 }
 
@@ -110,23 +111,26 @@ remove_invalid_snapshots () {
 "
   local snapshot
   for snapshot in $snapshots ; do
-    lvol_display_name "$snapshot"
-    local snapshot_name="$lvol_display_name_ret"
-    warn "$snapshot_name is invalid (probably full). Removing it"
-    lvm_remove_snapshot "$snapshot"
-
-    lvol_tag "$snapshot" "primary"
-    if [ "$lvol_tag_ret" = "true" ] ; then
-      lvol_field "$snapshot" "lv_uuid"
-      local group_id="$lvol_field_ret"
-      lvm_get_volumes "lv_tags=autosnap:true,origin=~^.+$,lv_tags=group_id:${group_id}"
-      local group_snapshots="$lvm_get_volumes_ret"
-      for group_snapshot in $group_snapshots ; do
-        lvol_display_name "$group_snapshot"
-        warn "Also removing $lvol_display_name_ret (in the same snapshot group as $snapshot_name)"
-        lvm_remove_snapshot "$group_snapshot"
-      done
+    lvol_tag "$snapshot" "group_id"
+    local group_id="$lvol_tag_ret"
+    if [ -n "$group_id" ] ; then
+      lvol_display_name "$snapshot"
+      warn "$lvol_display_name_ret is invalid (probably full). Removing group $group_id"
+      remove_snapshot_group "$group_id"
     fi
+  done
+  IFS="$oldifs"
+}
+
+remove_snapshot_group () {
+  local group_id="$1"
+  lvm_get_volumes 'lv_tags=autosnap:true,origin=~^.+$,lv_tags=group_id:'"$group_id"
+  local oldifs="$IFS"
+  IFS="
+"
+  local snapshot
+  for snapshot in $snapshots ; do
+    lvm_remove_snapshot "$snapshot"
   done
   IFS="$oldifs"
 }
