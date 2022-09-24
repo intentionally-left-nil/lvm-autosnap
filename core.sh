@@ -39,6 +39,10 @@ main () {
   fi
 
   remove_invalid_snapshots
+  remove_old_snapshots
+  if [ -z "$remove_old_snapshots_ret" ] ; then
+    press_enter_to_boot 1
+  fi
   create_new_snapshots
 }
 
@@ -122,22 +126,83 @@ remove_invalid_snapshots () {
   IFS="$oldifs"
 }
 
+remove_old_snapshots () {
+  remove_old_snapshots_ret=
+  local oldifs="$IFS"
+  local watchdog=0
+  while [ "$watchdog" -lt 100 ] ; do
+    increment "$watchdog"
+    watchdog="$increment_ret"
+    lvm_get_volumes 'lv_tags=autosnap:true,origin=~^.+$,lv_tags=primary:true'
+    IFS="
+"
+    length "$lvm_get_volumes_ret"
+    if [ "$length_ret" -lt "$MAX_SNAPSHOTS" ] ; then
+      remove_old_snapshots_ret=1
+      break
+    fi
+    remove_old_snapshot
+
+    if [ -z "$remove_old_snapshot_ret" ] ; then
+      break
+    fi
+  done
+  IFS="$oldifs"
+}
+
+remove_old_snapshot () {
+  remove_old_snapshot_ret=
+  lvm_get_volumes 'lv_tags=autosnap:true,origin=~^.+$,lv_tags=primary:true,lv_tags!=primary_count:0' "-lv_time"
+  first_lvol "$lvm_get_volumes_ret"
+  local lvol="$first_lvol_ret"
+  local group_id=
+  if [ -z "$lvol" ] ; then
+    lvm_get_volumes 'lv_tags=autosnap:true,origin=~^.+$,lv_tags=primary:true,lv_tags=primary_count:0' "-lv_time"
+    first_lvol "$lvm_get_volumes_ret"
+    lvol="$first_lvol_ret"
+  fi
+
+  if [ -z "$lvol" ] ; then
+    error "Could not find any snapshot to remove"
+    return
+  fi
+  lvol_display_name "$lvol"
+  local name="$lvol_display_name_ret"
+
+  lvol_tag "$snapshot" "group_id"
+  local group_id="$lvol_tag_ret"
+  if [ -z "$group_id" ] ; then
+    error "$name does not contain a group_id"
+    return
+  fi
+
+  info "Removing $name (and group $group_id) to make room for new snapshots"
+  remove_snapshot_group "$group_id"
+  if [ -n "$remove_snapshot_group_ret" ] ; then
+    remove_old_snapshot_ret=1
+  fi
+}
+
 remove_snapshot_group () {
+  remove_snapshot_group_ret=
   local group_id="$1"
   lvm_get_volumes 'lv_tags=autosnap:true,origin=~^.+$,lv_tags=group_id:'"$group_id"
   local oldifs="$IFS"
   IFS="
 "
   local snapshot
+  info "Removing snapshot group $group_id"
+
   for snapshot in $snapshots ; do
     lvm_remove_snapshot "$snapshot"
+    remove_snapshot_group_ret=1
   done
   IFS="$oldifs"
 }
 
 root_pending_count () {
   root_pending_count_ret=0
-  lvm_get_volumes "lv_tags=autosnap:true,lv_tags=primary:true" "-lv_time"
+  lvm_get_volumes 'lv_tags=autosnap:true,origin=~^.+$,lv_tags=primary:true' "-lv_time"
   first_lvol "$lvm_get_volumes_ret"
   local lvol="$first_lvol_ret"
   if [ -n "$lvol" ] ; then

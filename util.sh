@@ -23,7 +23,18 @@ increment () {
   increment_ret="$((val+1))"
 }
 
-at_index() {
+length () {
+  debug "func: length"
+  local items="${1:-}"
+  length_ret=0
+  if [ -n "$items" ] ; then
+    # shellcheck disable=SC2086
+    set -- $items || exit "$?"
+    length_ret="$#"
+  fi
+}
+
+at_index () {
   debug "func: at_index"
   local items="${1:-}"
   local i="$2"
