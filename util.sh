@@ -117,20 +117,20 @@ get_user_input () {
 
 error () {
   local message="$1"
-  printf "[lvm-autosnap] %s\n" "$message" >&2
+  printf "[lvm-autosnap](error) %s\n" "$message" >&2
 }
 
 warn () {
   local message="$1"
   if [ -n "${LOG_LEVEL:-2}" ] && [ "${LOG_LEVEL:-2}" -ge 1 ] ; then
-    printf "[lvm-autosnap] %s\n" "$message" >&2
+    printf "[lvm-autosnap](warn) %s\n" "$message" >&2
   fi
 }
 
 info () {
   local message="$1"
   if [ -n "${LOG_LEVEL:-2}" ] && [ "${LOG_LEVEL:-2}" -ge 2 ] ; then
-    printf "[lvm-autosnap] %s\n" "$message"
+    printf "[lvm-autosnap](info) %s\n" "$message"
   fi
 }
 
@@ -142,6 +142,6 @@ prompt () {
 debug () {
   local message="$1"
   if [ -n "${LOG_LEVEL:-2}" ] && [ "${LOG_LEVEL:-2}" -ge 3 ] ; then
-    printf "[lvm-autosnap] %s\n" "$message"
+    printf "[lvm-autosnap](debug) %s\n" "$message"
   fi
 }

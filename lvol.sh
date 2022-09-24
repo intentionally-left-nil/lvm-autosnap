@@ -49,19 +49,18 @@ lvol_tag () {
 lvol_display_name () {
   debug "func lvol_display_name"
   local lvol="$1"
+
   lvol_field "$lvol" "vg_name"
   local vg="$lvol_field_ret"
-
+  lvol_field "$lvol" "lv_name"
+  local lv="$lvol_field_ret"
   lvol_field "$lvol" "origin"
   local origin="$lvol_field_ret"
   if [ -z "$origin" ] ; then
-    lvol_field "$lvol" "lv_name"
-    local lv="$lvol_field_ret"
     lvol_display_name_ret="$vg/$lv"
   else
     lvol_field "$lvol" "lv_time"
-    local ts="$lvol_field_ret"
-    lvol_display_name_ret="snapshot of $vg/$origin @ $ts"
+    lvol_display_name_ret="$vg/$lv (snapshot of $origin @ $lvol_field_ret)"
   fi
 }
 

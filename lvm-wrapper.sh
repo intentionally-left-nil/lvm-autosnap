@@ -19,9 +19,9 @@ lvm_create_snapshot () {
   local group_id="${6:-}"
   local output
   if [ -z "$group_id" ] ; then
-    output="$(lvm lvcreate --permission=r --size="$size" --snapshot --monitor n --addtag autosnap:true --addtag "pending:$pending_count" --addtag "primary:$primary_snapshot" "$vg/$lv" 2>&1)"
+    output="$(lvm lvcreate --permission=r --size="$size" --snapshot --monitor=n --addtag autosnap:true --addtag "pending:$pending_count" --addtag "primary:$primary_snapshot" "$vg/$lv" 2>&1)"
   else
-    output="$(lvm lvcreate --permission=r --size="$size" --snapshot --monitor n --addtag autosnap:true --addtag "pending:$pending_count" --addtag "primary:$primary_snapshot" --addtag "group_id:$group_id" "$vg/$lv" 2>&1)"
+    output="$(lvm lvcreate --permission=r --size="$size" --snapshot --monitor=n --addtag autosnap:true --addtag "pending:$pending_count" --addtag "primary:$primary_snapshot" --addtag "group_id:$group_id" "$vg/$lv" 2>&1)"
   fi
   lvm_handle_error "$?" "$output"
   local oldifs="$IFS"
@@ -95,7 +95,7 @@ lvm_del_tag () {
 lvm_handle_error () {
   local code=$1
   local output=$2
-  debug "$output"
+  debug "lvm output: $output"
   if [ "$code" -ne 0  ] ; then
     if [ -n "$output" ] ; then
       error "$output"

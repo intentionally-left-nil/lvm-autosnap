@@ -27,7 +27,7 @@ main () {
     warn "error reading from /proc/cmdline"
   fi
 
-  if [ -n "$LOG_LEVEL" ] && [ "$LOG_LEVEL" -ge 3 ] ; then
+  if [ -n "$LOG_LEVEL" ] && [ "$LOG_LEVEL" -ge 4 ] ; then
     # log all commands
     set -x
   fi
@@ -47,6 +47,7 @@ main () {
 }
 
 create_new_snapshots () {
+  debug "func: create_new_snapshots"
   root_pending_count
   increment "$root_pending_count_ret"
   local pending_count="$increment_ret"
@@ -57,8 +58,6 @@ create_new_snapshots () {
   local root_config=$1
   shift
   IFS="$oldifs"
-
-  echo "root_config is $root_config"
 
   # Create the root snapshot
   config_field "$root_config" "vg_name"
@@ -108,25 +107,28 @@ create_new_snapshots () {
 }
 
 remove_invalid_snapshots () {
-  lvm_get_volumes 'lv_tags=autosnap:true,origin=~^.+$,lv_snapshot_invalid>0'
-  local snapshots="$lvm_get_volumes_ret"
-  local oldifs="$IFS"
-  IFS="
-"
-  local snapshot
-  for snapshot in $snapshots ; do
-    lvol_tag "$snapshot" "group_id"
+  debug "func: remove_invalid_snapshots"
+  local watchdog=0
+  while [ "$watchdog" -lt 100 ] ; do
+    increment "$watchdog"
+    watchdog="$increment_ret"
+    lvm_get_volumes 'lv_tags=autosnap:true,origin=~^.+$,lv_snapshot_invalid>0' 'lv_time'
+    first_lvol "$lvm_get_volumes_ret"
+    local lvol="$first_lvol_ret"
+    lvol_tag "$lvol" "group_id"
     local group_id="$lvol_tag_ret"
     if [ -n "$group_id" ] ; then
-      lvol_display_name "$snapshot"
-      warn "$lvol_display_name_ret is invalid (probably full). Removing group $group_id"
+      lvol_display_name "$lvol"
+      info "$lvol_display_name_ret is invalid (probably full). Removing group $group_id"
       remove_snapshot_group "$group_id"
+    else
+      break
     fi
   done
-  IFS="$oldifs"
 }
 
 remove_old_snapshots () {
+  debug "func: remove_old_snapshots"
   remove_old_snapshots_ret=
   local oldifs="$IFS"
   local watchdog=0
@@ -151,6 +153,7 @@ remove_old_snapshots () {
 }
 
 remove_old_snapshot () {
+  debug "func: remove_old_snapshot"
   remove_old_snapshot_ret=
   lvm_get_volumes 'lv_tags=autosnap:true,origin=~^.+$,lv_tags=primary:true,lv_tags!=primary_count:0' "-lv_time"
   first_lvol "$lvm_get_volumes_ret"
@@ -169,7 +172,7 @@ remove_old_snapshot () {
   lvol_display_name "$lvol"
   local name="$lvol_display_name_ret"
 
-  lvol_tag "$snapshot" "group_id"
+  lvol_tag "$lvol" "group_id"
   local group_id="$lvol_tag_ret"
   if [ -z "$group_id" ] ; then
     error "$name does not contain a group_id"
@@ -184,9 +187,11 @@ remove_old_snapshot () {
 }
 
 remove_snapshot_group () {
+  debug "func: remove_snapshot_group"
   remove_snapshot_group_ret=
   local group_id="$1"
   lvm_get_volumes 'lv_tags=autosnap:true,origin=~^.+$,lv_tags=group_id:'"$group_id"
+  local snapshots="$lvm_get_volumes_ret"
   local oldifs="$IFS"
   IFS="
 "
@@ -201,6 +206,7 @@ remove_snapshot_group () {
 }
 
 root_pending_count () {
+  debug "func: root_pending_count"
   root_pending_count_ret=0
   lvm_get_volumes 'lv_tags=autosnap:true,origin=~^.+$,lv_tags=primary:true' "-lv_time"
   first_lvol "$lvm_get_volumes_ret"
