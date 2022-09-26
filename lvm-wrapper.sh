@@ -54,13 +54,13 @@ lvm_remove_snapshot () {
   lvm_handle_error "$?" "$output"
 }
 
-lvm_restore_snapshot () {
-  debug "func: lvm_restore_snapshot"
-  local snapshot="$1"
-  warn "Restoring from snapshot $snapshot"
+lvm_restore_snapshot_group () {
+  debug "func: lvm_restore_snapshot_group"
+  local group_id="$1"
+  warn "Restoring snapshot_group $group_id"
   # Since this command takes awhile, we just want to do the simple thing and display everything to the screen
   # That way the user will see the in-progress restore state
-  lvm lvconvert --merge "$snapshot"
+  lvm lvconvert --merge "@group_id:${group_id}"
   lvm_handle_error "$?" ""
 }
 

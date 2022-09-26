@@ -110,7 +110,7 @@ press_enter_to_boot () {
 get_user_input () {
   debug "func: get_user_input"
   get_user_input_ret=
-  printf "\n\n%s\n" "$1"
+  printf "\n\n%s \n" "$1"
   # Allow failures here, just treat it as if the user didn't type anything
   read -r get_user_input_ret
 }

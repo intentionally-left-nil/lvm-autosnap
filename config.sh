@@ -85,7 +85,7 @@ validate_config () {
   fi
 
   is_number "$RESTORE_AFTER"
-  if [ -z "$is_number_ret" ] || [ "$RESTORE_AFTER" -le 0 ] || [ "$RESTORE_AFTER" -gt 9 ] ; then
+  if [ -z "$is_number_ret" ] || [ "$RESTORE_AFTER" -lt 0 ] || [ "$RESTORE_AFTER" -gt 9 ] ; then
     error "RESTORE_AFTER($RESTORE_AFTER) is invalid"
     return
   fi

@@ -39,17 +39,41 @@ main () {
   fi
 
   remove_invalid_snapshots
-  remove_old_snapshots
-  if [ -z "$remove_old_snapshots_ret" ] ; then
-    press_enter_to_boot 1
+  root_pending_count
+  local pending_count="$root_pending_count_ret"
+
+  local should_restore=
+  local should_backup=1
+  if [ "$MODE" = "restore" ] ; then
+    should_restore=1
+  elif [ "$MODE" = "backup" ] ; then
+    true
+  elif [ "$RESTORE_AFTER" -gt 0 ]; then
+    if [ "$pending_count" -ge "$RESTORE_AFTER" ] ; then
+      should_restore=1
+      info "The system has failed to boot ${root_pending_count_ret} times"
+    fi
   fi
-  create_new_snapshots
+
+  if [ -n "$should_restore" ] ; then
+    restore
+    should_backup="$restore_ret"
+    pending_count=0
+  fi
+
+  if [ -n "$should_backup" ] ; then
+    remove_old_snapshots
+    if [ -z "$remove_old_snapshots_ret" ] ; then
+      press_enter_to_boot 1
+    fi
+    backup "$pending_count"
+  fi
 }
 
-create_new_snapshots () {
-  debug "func: create_new_snapshots"
-  root_pending_count
-  increment "$root_pending_count_ret"
+backup () {
+  debug "func: backup"
+  local pending_count="$1"
+  increment "$pending_count"
   local pending_count="$increment_ret"
   local oldifs="$IFS"
   IFS="/"
@@ -106,6 +130,72 @@ create_new_snapshots () {
   done
 }
 
+restore () {
+  debug "func: restore"
+  restore_ret=
+  get_group_id_to_restore
+  local group_id="$get_group_id_to_restore_ret"
+  if [ -n "$group_id" ] ; then
+    prompt "Do you wish to continue? This is your last chance to abort"
+    get_user_input "Confirm by typing I_HAVE_BACKUPS_ELSEWHERE:"
+    if [ "$get_user_input_ret" != "I_HAVE_BACKUPS_ELSEWHERE" ] ; then
+      return
+    fi
+    lvm_restore_snapshot_group "$group_id"
+    prompt "Finished restoring snapshot group $group_id"
+    if [ -n "${INTERACTIVE:-}" ] ; then
+      get_user_input "Press (enter) to continue"
+    fi
+
+    restore_ret=1
+  fi
+}
+
+get_group_id_to_restore () {
+  debug "func: restore_from_snapshots"
+  get_group_id_to_restore_ret=
+  lvm_get_volumes 'lv_tags=autosnap:true,origin=~^.+$,lv_tags=primary:true,lv_tags=pending:0' "-lv_time"
+  local snapshots="$lvm_get_volumes_ret"
+  local oldifs="$IFS"
+  IFS="
+"
+  length "$snapshots"
+  if [ "$length_ret" -eq 0 ] ; then
+    error "There are no known-good snapshots to restore from"
+    return
+  fi
+
+  prompt "Restore snapshots are available for the following times"
+  local snapshot
+  local i=1
+  for snapshot in $snapshots; do
+    lvol_field "$snapshot" "lv_time"
+    prompt "$i) $lvol_field_ret"
+    increment "$i"
+    i="$increment_ret"
+  done
+
+  get_user_input "choose a number (or n to abort):"
+  local choice=0
+  case $get_user_input_ret in
+    (*[!0-9]*|'') error "Aborting"; return;;
+    (*)           choice="$((get_user_input_ret))";;
+  esac
+
+  length "$snapshots"
+
+  if [ "$choice" -lt 1 ] || [ "$choice" -gt "$length_ret" ] ; then
+    error "Aborting"
+    return
+  fi
+  at_index "$snapshot" "$((choice-1))"
+  snapshot="$at_index_ret"
+
+  lvol_tag "$snapshot" "group_id"
+  IFS="$oldifs"
+  get_group_id_to_restore_ret="$lvol_tag_ret"
+}
+
 remove_invalid_snapshots () {
   debug "func: remove_invalid_snapshots"
   local watchdog=0
@@ -155,12 +245,12 @@ remove_old_snapshots () {
 remove_old_snapshot () {
   debug "func: remove_old_snapshot"
   remove_old_snapshot_ret=
-  lvm_get_volumes 'lv_tags=autosnap:true,origin=~^.+$,lv_tags=primary:true,lv_tags!=primary_count:0' "-lv_time"
+  lvm_get_volumes 'lv_tags=autosnap:true,origin=~^.+$,lv_tags=primary:true,lv_tags!=pending:0' "lv_time"
   first_lvol "$lvm_get_volumes_ret"
   local lvol="$first_lvol_ret"
   local group_id=
   if [ -z "$lvol" ] ; then
-    lvm_get_volumes 'lv_tags=autosnap:true,origin=~^.+$,lv_tags=primary:true,lv_tags=primary_count:0' "-lv_time"
+    lvm_get_volumes 'lv_tags=autosnap:true,origin=~^.+$,lv_tags=primary:true,lv_tags=pending:0' "lv_time"
     first_lvol "$lvm_get_volumes_ret"
     lvol="$first_lvol_ret"
   fi
