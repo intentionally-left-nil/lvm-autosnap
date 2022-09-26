@@ -21,27 +21,27 @@ service_main () {
 
   lvm_get_volumes "lv_tags=autosnap:true,lv_tags=primary:true,lv_tags=current_boot:true" "-lv_time"
   first_lvol "$lvm_get_volumes_ret"
-  local lvol="$first_lvol_ret"
-  if [ -z "$lvol" ] ; then
+  local lvol_40="$first_lvol_ret"
+  if [ -z "$lvol_40" ] ; then
     info "No primary snapshots exist. Nothing to do"
     exit 0
   fi
-  lvol_tag "$lvol" "pending"
-  local pending_count="$lvol_tag_ret"
-  is_number "$pending_count"
+  lvol_tag "$lvol_40" "pending"
+  local pending_count_40="$lvol_tag_ret"
+  is_number "$pending_count_40"
   if [ -z "$is_number_ret" ] ; then
-    warn "The pending count($pending_count) is unexpectedly not a number"
+    warn "The pending count($pending_count_40) is unexpectedly not a number"
     exit 1
   fi
-  lvol_display_name "$lvol"
-  local lvol_name="$lvol_display_name_ret"
-  if [ "$pending_count" -le 0 ] ; then
-    info "($lvol_name) is already known-good. Nothing to do"
+  lvol_display_name "$lvol_40"
+  local lvol_name_40="$lvol_display_name_ret"
+  if [ "$pending_count_40" -le 0 ] ; then
+    info "($lvol_name_40) is already known-good. Nothing to do"
   else
-    lvm_add_tag "$lvol" "pending:0"
-    lvm_del_tag "$lvol" "pending:$pending_count"
+    lvm_add_tag "$lvol_40" "pending:0"
+    lvm_del_tag "$lvol_40" "pending:$pending_count_40"
 
-    info "Changed $lvol_name to be a known-good snapshot"
+    info "Changed $lvol_name_40 to be a known-good snapshot"
   fi
 }
 
