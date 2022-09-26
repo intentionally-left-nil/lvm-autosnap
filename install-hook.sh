@@ -18,7 +18,7 @@ build() {
     load_config_from_env
     validate_config
 
-    if [ -z "$validate_config_ret" ] ; then
+    if [ -z "$VALIDATE_CONFIG_RET" ] ; then
       exit 1
     fi
   ) || exit "$?"

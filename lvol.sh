@@ -9,7 +9,7 @@ set -u
 
 lvol_columns() {
   debug "func: lvol_columns"
-  lvol_columns_ret="vg_name,lv_name,lv_uuid,lv_tags,lv_time,origin,lv_snapshot_invalid"
+  LVOL_COLUMNS_RET="vg_name,lv_name,lv_uuid,lv_tags,lv_time,origin,lv_snapshot_invalid"
 }
 
 lvol_field () {
@@ -18,17 +18,17 @@ lvol_field () {
   local name_20="$2"
 
   lvol_columns
-  field_by_header "$lvol_20" "$lvol_columns_ret" "$name_20" "|"
-  lvol_field_ret="$field_by_header_ret"
+  field_by_header "$lvol_20" "$LVOL_COLUMNS_RET" "$name_20" "|"
+  LVOL_FIELD_RET="$FIELD_BY_HEADER_RET"
 }
 
 lvol_tag () {
   debug "func: lvol_tag"
   local lvol_21="$1"
   local key_21="$2"
-  lvol_tag_ret=
+  LVOL_TAG_RET=
   lvol_field "$lvol_21" lv_tags
-  local tags_21="$lvol_field_ret"
+  local tags_21="$LVOL_FIELD_RET"
   local oldifs_21="$IFS"
   local tag_21
   IFS=","
@@ -36,9 +36,9 @@ lvol_tag () {
   for tag_21 in $tags_21 ; do
     IFS=":"
     at_index "$tag_21" 0
-    if [ "$at_index_ret" = "$key_21" ] ; then
+    if [ "$AT_INDEX_RET" = "$key_21" ] ; then
       at_index "$tag_21" 1
-      lvol_tag_ret="$at_index_ret"
+      LVOL_TAG_RET="$AT_INDEX_RET"
       break
     fi
     IFS=","
@@ -51,16 +51,16 @@ lvol_display_name () {
   local lvol_22="$1"
 
   lvol_field "$lvol_22" "vg_name"
-  local vg_22="$lvol_field_ret"
+  local vg_22="$LVOL_FIELD_RET"
   lvol_field "$lvol_22" "lv_name"
-  local lv_22="$lvol_field_ret"
+  local lv_22="$LVOL_FIELD_RET"
   lvol_field "$lvol_22" "origin"
-  local origin_22="$lvol_field_ret"
+  local origin_22="$LVOL_FIELD_RET"
   if [ -z "$origin_22" ] ; then
-    lvol_display_name_ret="$vg_22/$lv_22"
+    LVOL_DISPLAY_NAME_RET="$vg_22/$lv_22"
   else
     lvol_field "$lvol_22" "lv_time"
-    lvol_display_name_ret="$vg_22/$lv_22 (snapshot of $origin_22 @ $lvol_field_ret)"
+    LVOL_DISPLAY_NAME_RET="$vg_22/$lv_22 (snapshot of $origin_22 @ $LVOL_FIELD_RET)"
   fi
 }
 
@@ -70,6 +70,6 @@ first_lvol () {
   IFS="
 "
   at_index "$lvols_23" 0
-  first_lvol_ret="$at_index_ret"
+  FIRST_LVOL_RET="$AT_INDEX_RET"
   IFS="$oldifs_23"
 }

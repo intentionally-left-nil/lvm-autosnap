@@ -25,7 +25,7 @@ lvm_create_snapshot () {
   local oldifs_24="$IFS"
   IFS=\"
   at_index "$output_24" 1
-  lvm_create_snapshot_ret="$at_index_ret"
+  LVM_CREATE_SNAPSHOT_RET="$AT_INDEX_RET"
   IFS="$oldifs_24"
 }
 
@@ -33,20 +33,20 @@ lvm_get_volumes () {
   local query_25="$1"
   local sort_25="${2:-lv_time}"
   lvol_columns
-  lvm_get_volumes_ret=$(lvm lvs "--select=$query_25" "--sort=$sort_25" --noheadings --separator="|" "--options=$lvol_columns_ret")
-  lvm_handle_error "$?" "$lvm_get_volumes_ret"
+  LVM_GET_VOLUMES_RET=$(lvm lvs "--select=$query_25" "--sort=$sort_25" --noheadings --separator="|" "--options=$LVOL_COLUMNS_RET")
+  lvm_handle_error "$?" "$LVM_GET_VOLUMES_RET"
 }
 
 lvm_remove_snapshot () {
   debug "func: lvm_remove_snapshot"
   local lvol_26="$1"
   lvol_field "$lvol_26" "vg_name"
-  local vg_26="$lvol_field_ret"
+  local vg_26="$LVOL_FIELD_RET"
   lvol_field "$lvol_26" "lv_name"
-  local lv_26="$lvol_field_ret"
+  local lv_26="$LVOL_FIELD_RET"
 
   lvol_display_name "$lvol_26"
-  info "Removing $lvol_display_name_ret"
+  info "Removing $LVOL_DISPLAY_NAME_RET"
   local output_26
   output_26="$(lvm lvremove "$vg_26/$lv_26" -y 2>&1)"
   lvm_handle_error "$?" "$output_26"
@@ -68,9 +68,9 @@ lvm_add_tag () {
   local tag_28="$2"
 
   lvol_field "$lvol_28" "vg_name"
-  local vg_28="$lvol_field_ret"
+  local vg_28="$LVOL_FIELD_RET"
   lvol_field "$lvol_28" "lv_name"
-  local lv_28="$lvol_field_ret"
+  local lv_28="$LVOL_FIELD_RET"
   local output_28
   output_28="$(lvm lvchange --addtag "$tag_28" "$vg_28/$lv_28" 2>&1)"
   lvm_handle_error "$?" "$output_28"
@@ -82,9 +82,9 @@ lvm_del_tag () {
   local tag_28="$2"
 
   lvol_field "$lvol_28" "vg_name"
-  local vg_28="$lvol_field_ret"
+  local vg_28="$LVOL_FIELD_RET"
   lvol_field "$lvol_28" "lv_name"
-  local lv_28="$lvol_field_ret"
+  local lv_28="$LVOL_FIELD_RET"
 
   local output_28
   output_28="$(lvm lvchange --deltag "$tag_28" "$vg_28/$lv_28" 2>&1)"

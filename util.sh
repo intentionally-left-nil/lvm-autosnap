@@ -4,10 +4,10 @@
 is_number () {
   debug "func: is_number"
   local item_1="${1:-}"
-  is_number_ret=
+  IS_NUMBER_RET=
   case $item_1 in
     (*[!0-9]*|'') ;;
-    (*)           is_number_ret=1;;
+    (*)           IS_NUMBER_RET=1;;
   esac
 }
 
@@ -15,20 +15,20 @@ increment () {
   debug "func: increment"
   local val_2="$1"
   is_number "$val_2"
-  if [ -z "$is_number_ret" ] ; then
+  if [ -z "$IS_NUMBER_RET" ] ; then
     exit 1
   fi
-  increment_ret="$((val_2+1))"
+  INCREMENT_RET="$((val_2+1))"
 }
 
 length () {
   debug "func: length"
   local items_3="${1:-}"
-  length_ret=0
+  LENGTH_RET=0
   if [ -n "$items_3" ] ; then
     # shellcheck disable=SC2086
     set -- $items_3 || exit "$?"
-    length_ret="$#"
+    LENGTH_RET="$#"
   fi
 }
 
@@ -38,13 +38,13 @@ at_index () {
   local i_4="$2"
   # index is 0 based, but the positional args are 1-based
   increment "$i_4"
-  i_4="$increment_ret"
-  at_index_ret=
+  i_4="$INCREMENT_RET"
+  AT_INDEX_RET=
   if [ -n "$items_4" ] ; then
     # shellcheck disable=SC2086
     set -- $items_4 || exit "$?"
     if [ "$i_4" -le "$#" ] ; then
-      at_index_ret=$(eval "echo \${$i_4}")
+      AT_INDEX_RET=$(eval "echo \${$i_4}")
     fi
   fi
 }
@@ -53,7 +53,7 @@ header_index () {
   debug "func: header_index"
   local headers_5="$1"
   local name_5="$2"
-  header_index_ret=0
+  HEADER_INDEX_RET=0
   local oldifs_5="$IFS"
   IFS=","
   local header_5
@@ -63,8 +63,8 @@ header_index () {
       IFS="$oldifs_5"
       return
     fi
-    increment "$header_index_ret"
-    header_index_ret="$increment_ret"
+    increment "$HEADER_INDEX_RET"
+    HEADER_INDEX_RET="$INCREMENT_RET"
   done
   IFS="$oldifs_5"
   error "Missing header $name_5"
@@ -81,10 +81,10 @@ field_by_header () {
 
   header_index "$headers_6" "$name_6"
   IFS="$delim_6"
-  at_index "$row_6" "$header_index_ret"
+  at_index "$row_6" "$HEADER_INDEX_RET"
   IFS="$oldifs_6"
-  trim "$at_index_ret"
-  field_by_header_ret="$trim_ret"
+  trim "$AT_INDEX_RET"
+  FIELD_BY_HEADER_RET="$TRIM_RET"
 }
 
 trim() {
@@ -95,7 +95,7 @@ trim() {
   str_7="${str_7#"${str_7%%[![:space:]]*}"}"
   # remove trailing whitespace characters
   str_7="${str_7%"${str_7##*[![:space:]]}"}"
-  trim_ret="$str_7"
+  TRIM_RET="$str_7"
 }
 
 press_enter_to_boot () {
@@ -110,10 +110,10 @@ press_enter_to_boot () {
 get_user_input () {
   debug "func: get_user_input"
   local prompt_9="$1"
-  get_user_input_ret=
+  GET_USER_INPUT_RET=
   printf "\n\n%s \n" "$prompt_9"
   # Allow failures here, just treat it as if the user didn't type anything
-  read -r get_user_input_ret
+  read -r GET_USER_INPUT_RET
 }
 
 error () {
