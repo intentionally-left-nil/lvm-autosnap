@@ -17,6 +17,7 @@ set -u
 
 main () {
   config_set_defaults
+  lvm_del_tags_from_all "current_boot:true"
   load_config_from_env
   local cmdline
   cmdline="$(cat /proc/cmdline)"
@@ -48,7 +49,7 @@ main () {
     should_restore=1
   elif [ "$MODE" = "backup" ] ; then
     true
-  elif [ "$RESTORE_AFTER" -gt 0 ]; then
+  elif [ "$RESTORE_AFTER" -gt 0 ] ; then
     if [ "$pending_count" -ge "$RESTORE_AFTER" ] ; then
       should_restore=1
       info "The system has failed to boot ${root_pending_count_ret} times"

@@ -19,7 +19,7 @@ service_main () {
     exit 1
   fi
 
-  lvm_get_volumes "lv_tags=autosnap:true,lv_tags=primary:true" "-lv_time"
+  lvm_get_volumes "lv_tags=autosnap:true,lv_tags=primary:true,lv_tags=current_boot:true" "-lv_time"
   first_lvol "$lvm_get_volumes_ret"
   local lvol="$first_lvol_ret"
   if [ -z "$lvol" ] ; then
