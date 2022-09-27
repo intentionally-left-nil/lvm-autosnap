@@ -3,7 +3,7 @@ Description="Mark lvm auto-snapshots as good"
 
 [Service]
 Type=oneshot
-ExecStart=/usr/share/lvm-autosnap/service.sh
+ExecStart=/usr/bin/lvm-autosnap mark_good
 
 [Install]
 WantedBy=graphical.target
