@@ -144,6 +144,7 @@ restore () {
     fi
     lvm_restore_snapshot_group "$group_id_33"
     prompt "Finished restoring snapshot group $group_id_33"
+    prompt "Make sure to manually restore your /efi partition to match any kernel changes, etc"
     if [ -n "${INTERACTIVE:-}" ] ; then
       get_user_input "Press (enter) to continue"
     fi
