@@ -88,14 +88,20 @@ cli_list_snapshots () {
   local primary_lvol_41
   IFS="
 "
+  local first_group_41=
   for primary_lvol_41 in $primary_vols_41; do
     lvol_tag "$primary_lvol_41" "group_id"
     local group_id_41="$LVOL_TAG_RET"
     if [ -z "$group_id_41" ] ; then
       continue
     fi
+    if [ -z "$first_group_41" ] ; then
+      first_group_41=1
+    else
+      printf '\n\n'
+    fi
     prompt "snapshot group $group_id_41"
-    printf "vg_name\tlv_name\torigin\ttime_created\n"
+    printf "vg_name\tlv_name\torigin\tknown_good\tsnapshot_valid\tcreated_at\n"
     lvm_get_volumes 'lv_tags=autosnap:true,origin=~^.+$,lv_tags=group_id:'"$group_id_41" "origin"
     local group_vols_41="$LVM_GET_VOLUMES_RET"
     local lvol_41
@@ -108,9 +114,18 @@ cli_list_snapshots () {
       local origin_41="$LVOL_FIELD_RET"
       lvol_field "$lvol_41" "lv_time"
       local time_41="$LVOL_FIELD_RET"
-      printf '%s\t%s\t%s\t%s\n' "$vg_41" "$lv_41" "$origin_41" "$time_41"
+      lvol_tag "$lvol_41" "pending"
+      local known_good_41="false"
+      if [ "$LVOL_TAG_RET" = "0" ] ; then
+        known_good_41="true"
+      fi
+      lvol_field "$lvol_41" "lv_snapshot_invalid"
+      local snapshot_valid_41="false"
+      if [ -z "$LVOL_FIELD_RET" ] ; then
+        snapshot_valid_41="true"
+      fi
+      printf '%s\t%s\t%s\t%s\t%s\t%s\n' "$vg_41" "$lv_41" "$origin_41" "$known_good_41" "$snapshot_valid_41" "$time_41"
     done
-    printf '\n\n'
   done
   IFS="$oldifs_41"
 }
