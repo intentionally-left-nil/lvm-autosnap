@@ -68,7 +68,7 @@ validate_config () {
   VALIDATE_CONFIG_RET=
   LOG_LEVEL="${LOG_LEVEL:-2}"
   is_number "$LOG_LEVEL"
-  if [ -z "$IS_NUMBER_RET" ] || [ "$LOG_LEVEL" -lt 0 ] || [ "$LOG_LEVEL" -gt 3 ] ; then
+  if [ -z "$IS_NUMBER_RET" ] || [ "$LOG_LEVEL" -lt 0 ] ; then
     LOG_LEVEL=2
   fi
 
@@ -79,7 +79,7 @@ validate_config () {
   fi
 
   is_number "$RESTORE_AFTER"
-  if [ -z "$IS_NUMBER_RET" ] || [ "$RESTORE_AFTER" -lt 0 ] || [ "$RESTORE_AFTER" -gt 9 ] ; then
+  if [ -z "$IS_NUMBER_RET" ] || [ "$RESTORE_AFTER" -lt 0 ] ; then
     error "RESTORE_AFTER($RESTORE_AFTER) is invalid"
     return
   fi
@@ -111,7 +111,6 @@ validate_config () {
 
     config_field "$config_19" "lv_name"
     local lv_19="$CONFIG_FIELD_RET"
-    # From man lvm: The valid characters for VG and LV names are: a-z A-Z 0-9 + _ . -
     if [ -z "$lv_19" ] ; then
       error "Invalid lv($lv_19) for $config_19";
       return
