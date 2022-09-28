@@ -245,22 +245,29 @@ function setup() {
     assert_equal "$output" ""
 }
 
+@test "prints error when log_level is unset" {
+    unset LOG_LEVEL
+    run error "aoeu"
+    assert_output "[lvm-autosnap](error) aoeu"
+}
+
+
 @test "prints warn when log_level is 1" {
     LOG_LEVEL=1
     run warn "aoeu"
     assert_output "[lvm-autosnap](warn) aoeu"
 }
 
-@test "prints warn when log_level is unset" {
-    unset LOG_LEVEL
-    run warn "aoeu"
-    assert_output "[lvm-autosnap](warn) aoeu"
-}
-
-@test "prints warn when log_level is empty" {
+@test "no messages when log_level is empty" {
     LOG_LEVEL=
     run warn "aoeu"
-    assert_output "[lvm-autosnap](warn) aoeu"
+    assert_equal "$output" ""
+}
+
+@test "no messages when log_level is unset" {
+    unset LOG_LEVEL
+    run warn "aoeu"
+    assert_equal "$output" ""
 }
 
 @test "no info when log_level is 1" {
@@ -275,16 +282,16 @@ function setup() {
     assert_output "[lvm-autosnap](info) aoeu"
 }
 
-@test "prints info when log_level is unset" {
+@test "no info messages when log_level is unset" {
     unset LOG_LEVEL
     run info "aoeu"
-    assert_output "[lvm-autosnap](info) aoeu"
+    assert_equal "$output" ""
 }
 
-@test "prints info when log_level is empty" {
+@test "no info when log_level is empty" {
     LOG_LEVEL=
     run info "aoeu"
-    assert_output "[lvm-autosnap](info) aoeu"
+    assert_equal "$output" ""
 }
 
 @test "no debug messages when log_level is unset" {

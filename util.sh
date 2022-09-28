@@ -123,14 +123,14 @@ error () {
 
 warn () {
   local message_11="$1"
-  if [ -n "${LOG_LEVEL:-2}" ] && [ "${LOG_LEVEL:-2}" -ge 1 ] ; then
+  if [ -n "${LOG_LEVEL:-0}" ] && [ "${LOG_LEVEL:-0}" -ge 1 ] ; then
     printf "[lvm-autosnap](warn) %s\n" "$message_11" >&2
   fi
 }
 
 info () {
   local message_12="$1"
-  if [ -n "${LOG_LEVEL:-2}" ] && [ "${LOG_LEVEL:-2}" -ge 2 ] ; then
+  if [ -n "${LOG_LEVEL:-0}" ] && [ "${LOG_LEVEL:-0}" -ge 2 ] ; then
     printf "[lvm-autosnap](info) %s\n" "$message_12"
   fi
 }
@@ -142,7 +142,7 @@ prompt () {
 
 debug () {
   local message_14="$1"
-  if [ -n "${LOG_LEVEL:-2}" ] && [ "${LOG_LEVEL:-2}" -ge 3 ] ; then
+  if [ -n "${LOG_LEVEL:-0}" ] && [ "${LOG_LEVEL:-0}" -ge 3 ] ; then
     printf "[lvm-autosnap](debug) %s\n" "$message_14"
   fi
 }
