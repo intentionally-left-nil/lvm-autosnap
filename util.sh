@@ -99,7 +99,7 @@ trim() {
 }
 
 press_enter_to_boot () {
-  debug 
+  debug "func: press_enter_to_boot"
   local code_8="${1:-1}"
   if [ -n "${INTERACTIVE:-}" ] ; then
     get_user_input "Press (enter) to continue booting"

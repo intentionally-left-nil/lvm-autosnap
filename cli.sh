@@ -4,6 +4,9 @@
 # shellcheck source=core.sh
 . "$SCRIPT_PATH/core.sh"
 
+# shellcheck source=lvol.sh
+. "$SCRIPT_PATH/lvol.sh"
+
 # shellcheck source=util.sh
 . "$SCRIPT_PATH/util.sh"
 
@@ -14,13 +17,18 @@ usage () {
   debug: "func: usage"
   prompt "lvm-autosnap COMMAND OPTIONS"
   prompt "Available commands:"
-  prompt "mark_good - Mark the stapshot of the current boot as known-good "
+  prompt "mark_good - Mark the stapshot of the current boot as known-good"
+  prompt "list - Display a list of snapshot groups on the system"
 }
 
 cli_main () {
   debug "func: cli_main"
   config_set_defaults
   load_config_from_env
+  if [ -n "$LOG_LEVEL" ] && [ "$LOG_LEVEL" -ge 4 ] ; then
+    # log all commands
+    set -x
+  fi
   validate_config
 
   if [ -z "$VALIDATE_CONFIG_RET" ] ; then
@@ -33,7 +41,8 @@ cli_main () {
   fi
 
   case "$1" in
-  (mark_good) cli_mark_good;;
+  (mark_good) cli_mark_good; return;;
+  (list) cli_list_snapshots; return;;
   esac
 }
 
@@ -63,4 +72,43 @@ cli_mark_good () {
 
     info "Changed $lvol_name_40 to be a known-good snapshot"
   fi
+}
+
+cli_list_snapshots () {
+  debug "func: cli_list_snapshots"
+
+  lvm_get_volumes 'lv_tags=autosnap:true,origin=~^.+$,lv_tags=primary:true' "-lv_time"
+  local primary_vols_41="$LVM_GET_VOLUMES_RET"
+  if [ -z "$primary_vols_41" ] ; then
+    return
+  fi
+  local oldifs_41="$IFS"
+  local primary_lvol_41
+  IFS="
+"
+  for primary_lvol_41 in $primary_vols_41; do
+    lvol_tag "$primary_lvol_41" "group_id"
+    local group_id_41="$LVOL_TAG_RET"
+    if [ -z "$group_id_41" ] ; then
+      continue
+    fi
+    prompt "snapshot group $group_id_41"
+    printf "vg_name\tlv_name\torigin\ttime_created\n"
+    lvm_get_volumes 'lv_tags=autosnap:true,origin=~^.+$,lv_tags=group_id:'"$group_id_41" "origin"
+    local group_vols_41="$LVM_GET_VOLUMES_RET"
+    local lvol_41
+    for lvol_41 in $group_vols_41; do
+      lvol_field "$lvol_41" "vg_name"
+      local vg_41="$LVOL_FIELD_RET"
+      lvol_field "$lvol_41" "lv_name"
+      local lv_41="$LVOL_FIELD_RET"
+      lvol_field "$lvol_41" "origin"
+      local origin_41="$LVOL_FIELD_RET"
+      lvol_field "$lvol_41" "lv_time"
+      local time_41="$LVOL_FIELD_RET"
+      printf '%s\t%s\t%s\t%s\n' "$vg_41" "$lv_41" "$origin_41" "$time_41"
+    done
+    printf '\n\n'
+  done
+  IFS="$oldifs_41"
 }
