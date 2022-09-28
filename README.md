@@ -118,6 +118,20 @@ Additionally, you can keep a known-working initramfs around to run the restore c
 
 Then, if you end up in trouble with your initramfs, you can just go down the boot menu, choose the known_good boot entry, and restore the system
 
+# CLI
+
+lvm-autonsnap installs the `lvm-autosnap` binary to /usr/local/bin to assist with snapshots. The commands must be run as root
+
+```
+lvm-autosnap COMMAND OPTIONS
+Available commands:
+mark_good - Mark the stapshot of the current boot as known-good
+list - Display a list of snapshot groups on the system
+create - Create a new snapshot group
+delete [snapshot_group_id] - Deletes a snapshot group by its group_id
+config - Display the active configuration
+```
+
 # Local development
 
 Writing code for lvm-autosnap is cumbersome because it has to run in early userspace. That means it's running in [busybox](https://en.wikipedia.org/wiki/BusyBox), using the ash shell. There are also a minimal number of external binaries available. As a rule, lvm-autosnap aims for all the code to be POSIX compatible, and not use any external programs. This means no fancy bash extensions, no calling `tr` or `sed`. The only external program called by the code is `lvm`.
@@ -154,11 +168,11 @@ lvm-autosnap has the concept of "known-good" snapshots and "pending" snapshots. 
 
 ### Marking a snapshot as known-good
 
-It's up to you to decide when your computer has booted successfully to your liking. Maybe that's as soon as the root filesystem gets mounted. Maybe that's after you log in. In any case, when that happens, you should run the `lvm-autosnap.service` which will configure the snapshot for the current boot.
+It's up to you to decide when your computer has booted successfully to your liking. Maybe that's as soon as the root filesystem gets mounted. Maybe that's after you log in. In any case, when that happens, you should run the [CLI command](#cli) `lvm-autosnap mark_good` which will configure the snapshot for the current boot.
 
-The suggested behavior is to leave `lvm-autosnap.service` alone (disabled), and instead enable (and autostart) [lvm-autosnap.timer](./lvm-autosnap.timer). This timer simply waits 30 seconds before triggering `lvm-autosnap.service`.
+The suggested behavior is to enable (and autostart) [lvm-autosnap.timer](./lvm-autosnap.timer). This timer simply waits 30 seconds before triggering `lvm-autosnap.service`. (which calls the CLI).
 
-You can do this with `systemctl enable lvm-autosnap.timer`. Or, if you want to configure a different method for marking a snapshot as good, simply start `lvm-autosnap.service` at the appropriate time
+You can do this with `systemctl enable lvm-autosnap.timer`. Or, if you want to configure a different method for marking a snapshot as good, simply start `lvm-autosnap.service` or call `lvm-autosnap mark_good` at the desired time
 
 ## Snapshot groups
 

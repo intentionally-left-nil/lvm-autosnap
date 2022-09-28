@@ -21,6 +21,7 @@ usage () {
   prompt "list - Display a list of snapshot groups on the system"
   prompt "create - Create a new snapshot group"
   prompt "delete [snapshot_group_id] - Deletes a snapshot group by its group_id"
+  prompt "config - Display the active configuration"
 }
 
 cli_main () {
@@ -47,6 +48,7 @@ cli_main () {
   (list) cli_list_snapshots; return;;
   (create) cli_create_snapshot_group; return;;
   (delete) cli_delete_snapshot_group "${2:-}"; return;;
+  (config) cli_print_config; return;;
   esac
 }
 
@@ -151,3 +153,13 @@ cli_delete_snapshot_group () {
   fi
   lvm_remove_snapshot_group "$group_id_42"
 }
+
+cli_print_config () 
+{
+  prompt "CONFIGS=$CONFIGS"
+  prompt "MAX_SNAPSHOTS=$MAX_SNAPSHOTS"
+  prompt "RESTORE_AFTER=$RESTORE_AFTER"
+  prompt "LOG_LEVEL=$LOG_LEVEL"
+  prompt "MODE=$MODE"
+}
+
