@@ -19,6 +19,7 @@ usage () {
   prompt "Available commands:"
   prompt "mark_good - Mark the stapshot of the current boot as known-good"
   prompt "list - Display a list of snapshot groups on the system"
+  prompt "delete [snapshot_group_id] - Deletes a snapshot group by its group_id"
 }
 
 cli_main () {
@@ -43,6 +44,7 @@ cli_main () {
   case "$1" in
   (mark_good) cli_mark_good; return;;
   (list) cli_list_snapshots; return;;
+  (delete) cli_delete_snapshot_group "${2:-}"; return;;
   esac
 }
 
@@ -111,4 +113,14 @@ cli_list_snapshots () {
     printf '\n\n'
   done
   IFS="$oldifs_41"
+}
+
+cli_delete_snapshot_group () {
+  debug func "cli_delete_snapshot_group"
+  local group_id_42="$1"
+  if [ -z "$group_id_42" ]; then
+    usage
+    exit 1
+  fi
+  lvm_remove_snapshot_group "$group_id_42"
 }

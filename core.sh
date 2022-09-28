@@ -211,7 +211,7 @@ remove_invalid_snapshots () {
     if [ -n "$group_id_35" ] ; then
       lvol_display_name "$lvol_35"
       info "$LVOL_DISPLAY_NAME_RET is invalid (probably full). Removing group $group_id_35"
-      remove_snapshot_group "$group_id_35"
+      lvm_remove_snapshot_group "$group_id_35"
     else
       break
     fi
@@ -271,29 +271,10 @@ remove_old_snapshot () {
   fi
 
   info "Removing $name_37 (and group $group_id_37) to make room for new snapshots"
-  remove_snapshot_group "$group_id_37"
+  lvm_remove_snapshot_group "$group_id_37"
   if [ -n "$REMOVE_SNAPSHOT_GROUP_RET" ] ; then
     REMOVE_OLD_SNAPSHOT_RET=1
   fi
-}
-
-remove_snapshot_group () {
-  debug "func: remove_snapshot_group"
-  REMOVE_SNAPSHOT_GROUP_RET=
-  local group_id_38="$1"
-  lvm_get_volumes 'lv_tags=autosnap:true,origin=~^.+$,lv_tags=group_id:'"$group_id_38"
-  local snapshots_38="$LVM_GET_VOLUMES_RET"
-  local oldifs_38="$IFS"
-  IFS="
-"
-  local snapshot_38
-  info "Removing snapshot group $group_id_38"
-
-  for snapshot_38 in $snapshots_38 ; do
-    lvm_remove_snapshot "$snapshot_38"
-    REMOVE_SNAPSHOT_GROUP_RET=1
-  done
-  IFS="$oldifs_38"
 }
 
 root_pending_count () {

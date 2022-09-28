@@ -37,18 +37,11 @@ lvm_get_volumes () {
   lvm_handle_error "$?" "$LVM_GET_VOLUMES_RET"
 }
 
-lvm_remove_snapshot () {
+lvm_remove_snapshot_group () {
   debug "func: lvm_remove_snapshot"
-  local lvol_26="$1"
-  lvol_field "$lvol_26" "vg_name"
-  local vg_26="$LVOL_FIELD_RET"
-  lvol_field "$lvol_26" "lv_name"
-  local lv_26="$LVOL_FIELD_RET"
-
-  lvol_display_name "$lvol_26"
-  info "Removing $LVOL_DISPLAY_NAME_RET"
+  local group_id_26="$1"
   local output_26
-  output_26="$(lvm lvremove "$vg_26/$lv_26" -y 2>&1)"
+  output_26="$(lvm lvremove "@group_id:$group_id_26" -y 2>&1)"
   lvm_handle_error "$?" "$output_26"
 }
 
