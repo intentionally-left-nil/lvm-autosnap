@@ -1,5 +1,7 @@
 # lvm-autosnap
 
+[![CI](https://github.com/intentionally-left-nil/lvm-autosnap/actions/workflows/test.yml/badge.svg)](https://github.com/intentionally-left-nil/lvm-autosnap/actions/workflows/test.yml)
+
 Create [lvm snapshots](https://man.archlinux.org/man/lvcreate.8#DESCRIPTION) during boot and automatically offer to restore your system if it stops booting.
 Or, in fewer words, "Fixing your system without archiso"
 
@@ -149,6 +151,11 @@ Additionally, the codebase has adopted some other conventions to limit the poten
 - Local values must have a unique suffix (e.g. my_var_22 instead of my_var) because `local` uses dynamic scoping and not lexical scoping :(
 - Empty values are typically falsey, and `1` is typically truthy
 - IFS needs to be manually set & reset for every function that uses it
+
+## Unit testing
+
+Unit tests can be run locally by cd'ing to the project directory, and then running `./test/bats/bin/bats test/`
+These tests are also run as part of github's CI workflow.
 
 # Notes
 
