@@ -6,6 +6,7 @@ set -uf
 # But since the install script puts the files in /usr/share, just
 # hard-coding the path for now
 SCRIPT_PATH=/usr/share/lvm-autosnap
+INTERACTIVE=1
 
 # shellcheck source=cli.sh
 . "$SCRIPT_PATH/cli.sh"

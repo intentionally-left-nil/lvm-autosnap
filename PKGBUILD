@@ -46,11 +46,11 @@ package() {
   install -D -m0644 "${srcdir}/runtime-hook.sh" "${pkgdir}/usr/lib/initcpio/hooks/lvm-autosnap"
 }
 
-sha256sums=('6d5be017df1bbd2a3ed344a36c7473a9010e9114957d5d2e6f190c41b6c44c6f'
+sha256sums=('6d7cc55427b9c3103514e513bc0c692238d54b535ca08ec0b56ba8bc8edc05cd'
             'd3a720019dc1476e092c93658e785281ec9a2020506a6aa309aa397e51e0f2a6'
             '15314f01b5962981ff06c7d4c83cb6bd211ad0799388eb5b3d9fa9182882a87b'
             '3768f5fd32b7dd9dfdeec92a017be947e1c8634e7570fd78bec534ef3b13e8ec'
-            'aeaa88c70f6e95b4217bdfb23bb6e44631dda61bdae19f504826b77e0d17c341'
+            'bad472cc3f9112460bb60519923e5dea6efcd4da20e292a47549e322ce6eb029'
             '2f4740be82fd099192d49239d21423b8bcbaf55831c31258f29a1b8516e34760'
             'b1a9666c71ab8bc008b321a2ff4cab0ad5ead45a54ecb8c932e0fbda5dd1643f'
             'e8da40587043edc18744bd23b844edfac95f6766cf6b397fce5ddbb3560401c2'

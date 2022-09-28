@@ -19,6 +19,7 @@ usage () {
   prompt "Available commands:"
   prompt "mark_good - Mark the stapshot of the current boot as known-good"
   prompt "list - Display a list of snapshot groups on the system"
+  prompt "create - Create a new snapshot group"
   prompt "delete [snapshot_group_id] - Deletes a snapshot group by its group_id"
 }
 
@@ -44,6 +45,7 @@ cli_main () {
   case "$1" in
   (mark_good) cli_mark_good; return;;
   (list) cli_list_snapshots; return;;
+  (create) cli_create_snapshot_group; return;;
   (delete) cli_delete_snapshot_group "${2:-}"; return;;
   esac
 }
@@ -128,6 +130,16 @@ cli_list_snapshots () {
     done
   done
   IFS="$oldifs_41"
+}
+
+cli_create_snapshot_group () {
+  debug func "cli_create_snapshot_group"
+  remove_invalid_snapshots
+  remove_old_snapshots
+  if [ -z "$REMOVE_OLD_SNAPSHOTS_RET" ] ; then
+    exit 1
+  fi
+  backup "0"
 }
 
 cli_delete_snapshot_group () {
