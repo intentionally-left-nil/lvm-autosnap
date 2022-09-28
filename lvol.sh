@@ -35,6 +35,10 @@ lvol_tag () {
 
   for tag_21 in $tags_21 ; do
     IFS=":"
+    length "$tag_21"
+    if [ "$LENGTH_RET" -ne 2 ] ; then
+      continue
+    fi
     at_index "$tag_21" 0
     if [ "$AT_INDEX_RET" = "$key_21" ] ; then
       at_index "$tag_21" 1
