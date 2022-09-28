@@ -17,4 +17,4 @@ jobs:
           submodules: recursive
 
       - name: Test
-        run: ./test/bats/bin/bats test/
+        run: ./test/bats/bin/bats -j 10 test/

@@ -1,4 +1,4 @@
-_common_setup() {
+common_setup() {
   SCRIPT_PATH="$PWD"
   # shellcheck source=config.sh
   . "$SCRIPT_PATH/config.sh"
@@ -17,4 +17,9 @@ _common_setup() {
 
   load 'test_helper/bats-support/load'
   load 'test_helper/bats-assert/load'
+}
+
+assert_ifs() {
+  local _expected=$' \t\n'
+  assert_equal "$_expected" "$IFS"
 }
