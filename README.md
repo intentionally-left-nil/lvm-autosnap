@@ -190,3 +190,11 @@ When [configuring](#configs) lvm-autosnap, you can list multiple volumes that sh
 All of lvm-autosnap's data lives within lvm itself, using lvm's own metadata, and storing its own in [lvm tags](https://access.redhat.com/documentation/en-us/red_hat_enterprise_linux/7/html/logical_volume_manager_administration/lvm_tags).
 
 For example, all snapshots controlled by lvm-autosnap contain the lvm tag `lvm-autosnap:true`. Similarly, the [snapshot group](#snapshot-groups) is determined by the `group_id:UUID` lvm tag
+
+## Debugging
+
+To debug issues with lvm-autosnap, you can set the kernel command-line argument: `rd.log=all`
+
+Then, after rebooting, lvm-autosnap logs will appear at `/run/initramfs/init.log`
+
+You can see more logs by changing the [LOG_LEVEL](#loglevel) in `/etc/lvm-autosnap.env`.

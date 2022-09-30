@@ -4,6 +4,7 @@ pkgrel=1
 pkgdesc=''
 arch=('any')
 license=('MIT')
+install="lvm-autosnap.install"
 depends=('lvm2')
 source=(
   'cli.sh'
@@ -46,7 +47,7 @@ package() {
   install -D -m0644 "${srcdir}/runtime-hook.sh" "${pkgdir}/usr/lib/initcpio/hooks/lvm-autosnap"
 }
 
-sha256sums=('1aec3983f17a8531e9f04b2d5e70722d9778975acdcd66bf4b29d430d0bdfa08'
+sha256sums=('1392ed0bf42f385ccac5b884c276c2a7bf76d7c38b707ef312c7784cbcb33fb0'
             '30e41485d18518ae33f6886124e246ae7c26365dc73d9b577f7d8a474343e149'
             'e6e1bfc990b6f14a654c67f32c4aedce93dd3a87ef6aeb1a1078753fc1e1bed9'
             '3768f5fd32b7dd9dfdeec92a017be947e1c8634e7570fd78bec534ef3b13e8ec'

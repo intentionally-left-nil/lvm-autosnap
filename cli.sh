@@ -105,7 +105,7 @@ cli_list_snapshots () {
       printf '\n\n'
     fi
     prompt "snapshot group $group_id_41"
-    printf "vg_name\tlv_name\torigin\tknown_good\tsnapshot_valid\tcreated_at\n"
+    printf "vg\tllv\torig_lv\tgood\tvalid\tcreated_at\n"
     lvm_get_volumes 'lv_tags=autosnap:true,origin=~^.+$,lv_tags=group_id:'"$group_id_41" "origin"
     local group_vols_41="$LVM_GET_VOLUMES_RET"
     local lvol_41
@@ -122,6 +122,10 @@ cli_list_snapshots () {
       local known_good_41="false"
       if [ "$LVOL_TAG_RET" = "0" ] ; then
         known_good_41="true"
+      fi
+      lvol_tag "$lvol_41" "primary"
+      if [ "$LVOL_TAG_RET" = "false" ] ; then
+        known_good_41="n/a"
       fi
       lvol_field "$lvol_41" "lv_snapshot_invalid"
       local snapshot_valid_41="false"

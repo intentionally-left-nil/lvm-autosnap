@@ -9,10 +9,11 @@ SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
 archive="${SCRIPT_DIR}/archlinux-bootstrap-2022.09.03-x86_64.tar.gz"
 image="${SCRIPT_DIR}/vm.img"
 
-qemu-img create -f raw "$image" 10G
+qemu-img create -f raw "$image" 20G
 loop=$(losetup --show -f -P "$image")
 
 cleanup () {
+  umount "$SCRIPT_DIR/vm_mnt/home"
   umount "$SCRIPT_DIR/vm_mnt"
   lvchange -an testvg || true
   losetup -d "$loop"
@@ -32,12 +33,17 @@ parted -s "$loop" set 1 lvm on
 pvcreate "${loop}p1"
 vgcreate testvg "${loop}p1"
 lvcreate -L 5G testvg -n root
+lvcreate -L 5G testvg -n home
 
 mkfs.ext4 /dev/testvg/root
-
+mkfs.ext4 /dev/testvg/home
 
 mkdir -p "${SCRIPT_DIR}/vm_mnt"
 mount /dev/testvg/root "${SCRIPT_DIR}/vm_mnt"
+mkdir -p "${SCRIPT_DIR}/vm_mnt/home"
+mkdir -p "${SCRIPT_DIR}/vm_mnt/etc"
+mount /dev/testvg/home "${SCRIPT_DIR}/vm_mnt/home"
+
 tar xf "$archive" -C "$SCRIPT_DIR/vm_mnt" --strip-components 1
 
 "$SCRIPT_DIR/vm_mnt/bin/arch-chroot" "$SCRIPT_DIR/vm_mnt" /bin/bash <<'EOF'
@@ -50,6 +56,9 @@ locale-gen
 echo LANG=en_US.UTF-8 > /etc/locale.conf
 echo archvm > /etc/hostname
 echo -e '127.0.0.1  localhost\n::1  localhost' >> /etc/hosts
+
+echo '/dev/mapper/testvg-root / ext4 defaults 0 0' >> /etc/fstab
+echo '/dev/mapper/testvg-home /home ext4 defaults 0 0' >> /etc/fstab
 
 pacman-key --init
 pacman-key --populate archlinux
