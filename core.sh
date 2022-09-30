@@ -78,7 +78,7 @@ backup () {
   IFS="/"
   # shellcheck disable=SC2086
   set -- $CONFIGS || exit "$?"
-  local root_config_32=$1
+  local root_config_32="$1"
   shift
   IFS="$oldifs_32"
 
@@ -106,6 +106,7 @@ backup () {
 
   # For every other config, also create a snapshot, making sure to set the group_id to the root uuid
   local config_32
+
   while [ "$#" -gt 0 ] ; do
     config_32="$1"
     config_field "$config_32" "vg_name"
@@ -115,7 +116,7 @@ backup () {
     config_field "$config_32" "snapshot_size"
     size_32="$CONFIG_FIELD_RET"
 
-    lvm_create_snapshot "$vg_32" "$lv_32" "$size_32" 0 "false" "$group_id_32"
+    lvm_create_snapshot "$vg_32" "$lv_32" "$size_32" "$pending_count_32" "false" "$group_id_32"
     shift
   done
 
@@ -135,7 +136,7 @@ restore () {
   debug "func: restore"
   RESTORE_RET=
   get_group_id_to_restore
-  local group_id_33="$get_group_id_to_RESTORE_RET"
+  local group_id_33="$GET_GROUP_ID_TO_RESTORE_RET"
   if [ -n "$group_id_33" ] ; then
     prompt "Do you wish to continue? This is your last chance to abort"
     get_user_input "Confirm by typing I_HAVE_BACKUPS_ELSEWHERE:"
@@ -154,7 +155,7 @@ restore () {
 
 get_group_id_to_restore () {
   debug "func: restore_from_snapshots"
-  get_group_id_to_RESTORE_RET=
+  GET_GROUP_ID_TO_RESTORE_RET=
   lvm_get_volumes 'lv_tags=autosnap:true,origin=~^.+$,lv_tags=primary:true,lv_tags=pending:0' "-lv_time"
   local snapshots_34="$LVM_GET_VOLUMES_RET"
   local oldifs_34="$IFS"
@@ -177,24 +178,24 @@ get_group_id_to_restore () {
   done
 
   get_user_input "choose a number (or n to abort):"
-  local choice_34=0
-  case $GET_USER_INPUT_RET in
-    (*[!0-9]*|'') error "Aborting"; return;;
-    (*)           choice_34="$((GET_USER_INPUT_RET))";;
-  esac
+  local choice_34="$GET_USER_INPUT_RET"
+  is_number "$choice_34"
+  if [ -z "$IS_NUMBER_RET" ] ; then
+    error "Aborting"
+    return
+  fi
 
   length "$snapshots_34"
-
   if [ "$choice_34" -lt 1 ] || [ "$choice_34" -gt "$LENGTH_RET" ] ; then
     error "Aborting"
     return
   fi
-  at_index "$snapshot_34" "$((choice_34-1))"
+  at_index "$snapshots_34" "$((choice_34-1))"
   snapshot_34="$AT_INDEX_RET"
 
   lvol_tag "$snapshot_34" "group_id"
   IFS="$oldifs_34"
-  get_group_id_to_RESTORE_RET="$LVOL_TAG_RET"
+  GET_GROUP_ID_TO_RESTORE_RET="$LVOL_TAG_RET"
 }
 
 remove_invalid_snapshots () {
@@ -249,8 +250,10 @@ remove_old_snapshot () {
   lvm_get_volumes 'lv_tags=autosnap:true,origin=~^.+$,lv_tags=primary:true,lv_tags!=pending:0' "lv_time"
   first_lvol "$LVM_GET_VOLUMES_RET"
   local lvol_37="$FIRST_LVOL_RET"
-  local group_id_37=
-  if [ -z "$lvol_37" ] ; then
+  lvol_tag "$lvol_37" "group_id"
+  local group_id_37="$LVOL_TAG_RET"
+
+  if [ -z "$group_id_37" ] ; then
     lvm_get_volumes 'lv_tags=autosnap:true,origin=~^.+$,lv_tags=primary:true,lv_tags=pending:0' "lv_time"
     first_lvol "$LVM_GET_VOLUMES_RET"
     lvol_37="$FIRST_LVOL_RET"
@@ -272,9 +275,7 @@ remove_old_snapshot () {
 
   info "Removing $name_37 (and group $group_id_37) to make room for new snapshots"
   lvm_remove_snapshot_group "$group_id_37"
-  if [ -n "$REMOVE_SNAPSHOT_GROUP_RET" ] ; then
-    REMOVE_OLD_SNAPSHOT_RET=1
-  fi
+  REMOVE_OLD_SNAPSHOT_RET=1
 }
 
 root_pending_count () {

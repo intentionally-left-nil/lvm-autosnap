@@ -15,6 +15,8 @@ common_setup() {
   # shellcheck source=core.sh
   . "$SCRIPT_PATH/core.sh"
 
+  . "$SCRIPT_PATH/test/test_helper/mock-lvm-wrapper.bash"
+
   config_set_defaults
 
   load 'test_helper/bats-support/load'
