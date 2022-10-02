@@ -26,12 +26,9 @@ build() {
   # Once we've validated lvm-autosnap.env
   # the remaining code _must_ be run in the initial shell,
   # or nothing gets actually added to the initramfs
-  
-  # Add dependencies
-  # The only dependencies required (outside of what base provides) is date and lvm
-  # The lvm2 hook provides the lvm binary, so all that's left to add is date
-  add_binary /usr/bin/date
 
+  add_binary /usr/bin/lvm-autosnap
+  
   # Add our scripts
   add_file /etc/lvm-autosnap.env
   add_full_dir /usr/share/lvm-autosnap

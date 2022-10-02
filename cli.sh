@@ -49,6 +49,7 @@ cli_main () {
   (create) cli_create_snapshot_group; return;;
   (delete) cli_delete_snapshot_group "${2:-}"; return;;
   (config) cli_print_config; return;;
+  (initrd_main) initrd_main; return;;
   esac
 }
 
@@ -105,7 +106,7 @@ cli_list_snapshots () {
       printf '\n\n'
     fi
     prompt "snapshot group $group_id_41"
-    printf "vg\tllv\torig_lv\tgood\tvalid\tcreated_at\n"
+    printf "vg\tlv\torig_lv\tgood\tvalid\tcreated_at\n"
     lvm_get_volumes 'lv_tags=autosnap:true,origin=~^.+$,lv_tags=group_id:'"$group_id_41" "origin"
     local group_vols_41="$LVM_GET_VOLUMES_RET"
     local lvol_41

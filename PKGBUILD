@@ -47,16 +47,16 @@ package() {
   install -D -m0644 "${srcdir}/runtime-hook.sh" "${pkgdir}/usr/lib/initcpio/hooks/lvm-autosnap"
 }
 
-sha256sums=('1392ed0bf42f385ccac5b884c276c2a7bf76d7c38b707ef312c7784cbcb33fb0'
+sha256sums=('4a0e3ce816e7dd96871dec8a929538fabe0c65b7605c646b73de0d6e42fb399f'
             '30e41485d18518ae33f6886124e246ae7c26365dc73d9b577f7d8a474343e149'
-            'e6e1bfc990b6f14a654c67f32c4aedce93dd3a87ef6aeb1a1078753fc1e1bed9'
-            '3768f5fd32b7dd9dfdeec92a017be947e1c8634e7570fd78bec534ef3b13e8ec'
+            '1f1a94f6782fba73a6856bb0db049fd4d88a64948ccb032535a1419b7aef5330'
+            'edfce930e56a1f7b4595643e1bd63f40a2abfb62c2b49dd9bb74acc63b639380'
             'bad472cc3f9112460bb60519923e5dea6efcd4da20e292a47549e322ce6eb029'
             '2f4740be82fd099192d49239d21423b8bcbaf55831c31258f29a1b8516e34760'
             'b1a9666c71ab8bc008b321a2ff4cab0ad5ead45a54ecb8c932e0fbda5dd1643f'
             'e8da40587043edc18744bd23b844edfac95f6766cf6b397fce5ddbb3560401c2'
             'bda5351c3e38688c79db2b92381fb6786a11f9664e8366bd45d5da72a83c6d96'
             'a37cd3cdd576d47fa015a10cb2d9fb69c841d192d8c8be3675fdc715226750d5'
-            'e2f29d12ffe02adff1896ec88bf5dd8ee45ce103ff71fc6522791097af76c66b'
+            '3cecc12beb84ab1f289fbe3fa7266452c585d7d6fccd994e826babf69315f1e8'
             '4fb78b1d7bb233b6248d10713ba979a9c5b16faab6c33a40b7499a5eb105f31b')
 

@@ -13,7 +13,7 @@
 # shellcheck source=config.sh
 . "$SCRIPT_PATH/config.sh"
 
-main () {
+initrd_main () {
   config_set_defaults
   lvm_del_tags_from_all "current_boot:true"
   load_config_from_env
