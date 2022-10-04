@@ -1,6 +1,6 @@
 # Maintainer A. Kulkarni <cd+aur [shift-2] terminal.space>
 pkgname=lvm-autosnap
-pkgver=0.0.1
+pkgver=0.0.2
 pkgrel=1
 pkgdesc='Create lvm snapshots during boot and automatically offer to restore your system if it stops booting.'
 arch=('any')
