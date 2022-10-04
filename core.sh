@@ -79,7 +79,6 @@ initrd_main () {
     fi
     backup "$pending_count_31"
   fi
-  press_enter_to_boot 0
 }
 
 backup () {
