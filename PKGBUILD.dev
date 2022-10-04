@@ -1,0 +1,56 @@
+pkgname=lvm-autosnap
+pkgver=0.0.1
+pkgrel=1
+pkgdesc=''
+arch=('any')
+license=('MIT')
+install="lvm-autosnap.install"
+depends=('lvm2')
+source=(
+  'cli.sh'
+  'config.sh'
+  'core.sh'
+  'install-hook.sh'
+  'lvm-autosnap'
+  'lvm-autosnap.env'
+  'lvm-autosnap.service'
+  'lvm-autosnap.timer'
+  'lvm-autosnap-initrd.service'
+  'lvm-wrapper.sh'
+  'lvol.sh'
+  'runtime-hook.sh'
+  'util.sh'
+)
+backup=(etc/lvm-autosnap.env)
+
+package() {
+  # Add core scripts
+  bin_dir="${pkgdir}/usr/share/lvm-autosnap"
+  install -D -m0755 "${srcdir}/cli.sh" "$bin_dir/cli.sh"
+  install -D -m0755 "${srcdir}/config.sh" "$bin_dir/config.sh"
+  install -D -m0755 "${srcdir}/core.sh" "$bin_dir/core.sh"
+  install -D -m0755 "${srcdir}/lvm-wrapper.sh" "$bin_dir/lvm-wrapper.sh"
+  install -D -m0755 "${srcdir}/lvol.sh" "$bin_dir/lvol.sh"
+  install -D -m0755 "${srcdir}/util.sh" "$bin_dir/util.sh"
+
+  # Add the CLI
+  install -D -m0755 "${srcdir}/lvm-autosnap" "${pkgdir}/usr/bin/lvm-autosnap"
+
+  # Add default config file
+  install -D -m0644 "${srcdir}/lvm-autosnap.env" "${pkgdir}/etc/lvm-autosnap.env"
+
+  # Add service to mark snapshots as not-pending once successfully booted
+  install -D -m0644 "${srcdir}/lvm-autosnap.service" "${pkgdir}/usr/lib/systemd/system/lvm-autosnap.service"
+  install -D -m0644 "${srcdir}/lvm-autosnap.timer" "${pkgdir}/usr/lib/systemd/system/lvm-autosnap.timer"
+
+  # Add initrd service file
+  install -D -m0644 "${srcdir}/lvm-autosnap-initrd.service" "${pkgdir}/usr/lib/systemd/system/lvm-autosnap-initrd.service"
+
+
+  # Add the initcpio hooks
+  install -D -m0644 "${srcdir}/install-hook.sh" "${pkgdir}/usr/lib/initcpio/install/lvm-autosnap"
+  install -D -m0644 "${srcdir}/runtime-hook.sh" "${pkgdir}/usr/lib/initcpio/hooks/lvm-autosnap"
+}
+
+
+

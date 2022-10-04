@@ -152,6 +152,10 @@ Additionally, the codebase has adopted some other conventions to limit the poten
 - Empty values are typically falsey, and `1` is typically truthy
 - IFS needs to be manually set & reset for every function that uses it
 
+## Running the code
+
+It's suggested to use a vm. You can cd to the `e2e` directory and run `sudo ./setup.sh` to create the vm. Inside the vm, copy over the files, (using rsync, see the setup.sh script for an example), then run `rm *.zst; makepkg -c -C -S -i -p PKGBUILD.dev` to install the package
+
 ## Unit testing
 
 Unit tests can be run locally by cd'ing to the project directory, and then running `./test/bats/bin/bats test/`
