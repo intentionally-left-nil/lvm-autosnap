@@ -37,6 +37,12 @@ initrd_main () {
     press_enter_to_boot 1
   fi
 
+  lvm_get_volumes "lv_merging=1"
+  if [ -n "$LVM_GET_VOLUMES_RET" ] ; then
+    info "Volumes are currently being merged together. Taking no action"
+    return
+  fi
+
   remove_invalid_snapshots
   root_pending_count
   local pending_count_31="$ROOT_PENDING_COUNT_RET"
@@ -61,12 +67,19 @@ initrd_main () {
   fi
 
   if [ -n "$should_backup_31" ] ; then
+    lvm_get_volumes "lv_merging=1"
+    if [ -n "$LVM_GET_VOLUMES_RET" ] ; then
+      info "Volumes are currently being merged together. Not creating any new snapshots"
+      return
+    fi
+
     remove_old_snapshots
     if [ -z "$REMOVE_OLD_SNAPSHOTS_RET" ] ; then
       press_enter_to_boot 1
     fi
     backup "$pending_count_31"
   fi
+  press_enter_to_boot 0
 }
 
 backup () {
@@ -135,6 +148,11 @@ backup () {
 restore () {
   debug "func: restore"
   RESTORE_RET=
+  lvm_get_volumes "lv_device_open=1"
+  if [ -n "$LVM_GET_VOLUMES_RET" ] ; then
+    error "Cannot restore lvm snapshots because at least one volume has been mounted"
+    return
+  fi
   get_group_id_to_restore
   local group_id_33="$GET_GROUP_ID_TO_RESTORE_RET"
   if [ -n "$group_id_33" ] ; then

@@ -191,6 +191,10 @@ All of lvm-autosnap's data lives within lvm itself, using lvm's own metadata, an
 
 For example, all snapshots controlled by lvm-autosnap contain the lvm tag `lvm-autosnap:true`. Similarly, the [snapshot group](#snapshot-groups) is determined by the `group_id:UUID` lvm tag
 
+## Systemd initrd
+
+By default, arch uses busybox to perform early initialization. You can switch to use [systemd for the initrd](<https://www.freedesktop.org/software/systemd/man/bootup.html#Bootup%20in%20the%20Initial%20RAM%20Disk%20(initrd)>) by adding the [systemd hook](https://wiki.archlinux.org/title/Mkinitcpio#Configuration) to your mkinitcpio.conf HOOKS section. To have lvm-autosnap work in this environment, you MUST also add the `base` hook so that there's a shell inside of initramfs. Otherwise you'll get "No such file or directory" errors when booting
+
 ## Debugging
 
 To debug issues with lvm-autosnap, you can set the kernel command-line argument: `rd.log=all`

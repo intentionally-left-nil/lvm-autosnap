@@ -15,6 +15,7 @@ source=(
   'lvm-autosnap.env'
   'lvm-autosnap.service'
   'lvm-autosnap.timer'
+  'lvm-autosnap-initrd.service'
   'lvm-wrapper.sh'
   'lvol.sh'
   'runtime-hook.sh'
@@ -38,9 +39,13 @@ package() {
   # Add default config file
   install -D -m0644 "${srcdir}/lvm-autosnap.env" "${pkgdir}/etc/lvm-autosnap.env"
 
-    # Add service to mark snapshots as not-pending once successfully booted
+  # Add service to mark snapshots as not-pending once successfully booted
   install -D -m0644 "${srcdir}/lvm-autosnap.service" "${pkgdir}/usr/lib/systemd/system/lvm-autosnap.service"
   install -D -m0644 "${srcdir}/lvm-autosnap.timer" "${pkgdir}/usr/lib/systemd/system/lvm-autosnap.timer"
+
+  # Add initrd service file
+  install -D -m0644 "${srcdir}/lvm-autosnap-initrd.service" "${pkgdir}/usr/lib/systemd/system/lvm-autosnap-initrd.service"
+
 
   # Add the initcpio hooks
   install -D -m0644 "${srcdir}/install-hook.sh" "${pkgdir}/usr/lib/initcpio/install/lvm-autosnap"
@@ -49,12 +54,13 @@ package() {
 
 sha256sums=('4a0e3ce816e7dd96871dec8a929538fabe0c65b7605c646b73de0d6e42fb399f'
             '30e41485d18518ae33f6886124e246ae7c26365dc73d9b577f7d8a474343e149'
-            '1f1a94f6782fba73a6856bb0db049fd4d88a64948ccb032535a1419b7aef5330'
-            'edfce930e56a1f7b4595643e1bd63f40a2abfb62c2b49dd9bb74acc63b639380'
+            '4a1d7b662b19a268d142c4940ff52e185788f436203ace14945c6881583538a4'
+            '54a27d06f167311bdbf0e2c200a3524a7d2e98883295714ad1bfda3013894544'
             'bad472cc3f9112460bb60519923e5dea6efcd4da20e292a47549e322ce6eb029'
             '2f4740be82fd099192d49239d21423b8bcbaf55831c31258f29a1b8516e34760'
             'b1a9666c71ab8bc008b321a2ff4cab0ad5ead45a54ecb8c932e0fbda5dd1643f'
             'e8da40587043edc18744bd23b844edfac95f6766cf6b397fce5ddbb3560401c2'
+            'aad20a2fdf34ab903dc5d7d7269cca9046eac3ef7f25b63693aa536f25c4f1ff'
             'bda5351c3e38688c79db2b92381fb6786a11f9664e8366bd45d5da72a83c6d96'
             'a37cd3cdd576d47fa015a10cb2d9fb69c841d192d8c8be3675fdc715226750d5'
             '3cecc12beb84ab1f289fbe3fa7266452c585d7d6fccd994e826babf69315f1e8'

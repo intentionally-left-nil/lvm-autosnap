@@ -32,7 +32,13 @@ build() {
   # Add our scripts
   add_file /etc/lvm-autosnap.env
   add_full_dir /usr/share/lvm-autosnap
-  add_runscript
+
+  if command -v add_systemd_unit >/dev/null; then
+    add_systemd_unit 'lvm-autosnap-initrd.service'
+    add_symlink "/usr/lib/systemd/system/initrd-root-fs.target.wants/lvm-autosnap-initrd.service" "/usr/lib/systemd/system/lvm-autosnap-initrd.service"
+  else
+    add_runscript
+  fi
 }
 
 help() {

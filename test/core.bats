@@ -34,14 +34,20 @@ myvg|home snapshot|home_snapshot_uuid|group_id:root_snapshot_uuid")
   assert_equal "$MOCK_LVM_ADD_TAG_TAG" "group_id:root_snapshot_uuid"
 }
 
+@test "restore:device is open" {
+  MOCK_LVM_GET_VOLUMES=("my vg|my lv|my uuid|pending:0,group_id:25")
+  restore
+  assert_equal "$RESTORE_RET" ""
+}
+
 @test "restore:no group_id" {
-  MOCK_LVM_GET_VOLUMES=("")
+  MOCK_LVM_GET_VOLUMES=("" "")
   restore
   assert_equal "$RESTORE_RET" ""
 }
 
 @test "restore:user declines confirmation" {
-  MOCK_LVM_GET_VOLUMES=("my vg|my lv|my uuid|pending:0,group_id:25|time1
+  MOCK_LVM_GET_VOLUMES=("" "my vg|my lv|my uuid|pending:0,group_id:25|time1
 my vg2|my lv2|my uuid|pending:0,group_id:26|time2")
   MOCK_GET_USER_INPUT=("1" "no")
   restore
@@ -49,7 +55,7 @@ my vg2|my lv2|my uuid|pending:0,group_id:26|time2")
 }
 
 @test "restore:user restores group 1" {
-  MOCK_LVM_GET_VOLUMES=("my vg|my lv|my uuid|pending:0,group_id:25|time1
+  MOCK_LVM_GET_VOLUMES=("" "my vg|my lv|my uuid|pending:0,group_id:25|time1
 my vg2|my lv2|my uuid|pending:0,group_id:26|time2")
   MOCK_GET_USER_INPUT=("1" "I_HAVE_BACKUPS_ELSEWHERE")
   restore
@@ -58,7 +64,7 @@ my vg2|my lv2|my uuid|pending:0,group_id:26|time2")
 }
 
 @test "restore:user restores group 2" {
-  MOCK_LVM_GET_VOLUMES=("my vg|my lv|my uuid|pending:0,group_id:25|time1
+  MOCK_LVM_GET_VOLUMES=("" "my vg|my lv|my uuid|pending:0,group_id:25|time1
 my vg2|my lv2|my uuid|pending:0,group_id:26|time2")
   MOCK_GET_USER_INPUT=("2" "I_HAVE_BACKUPS_ELSEWHERE")
   restore

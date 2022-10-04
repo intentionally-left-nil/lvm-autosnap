@@ -1,0 +1,13 @@
+[Unit]
+Description="Run the core lvm-autosnap logic to take manage snapshots during boot"
+DefaultDependencies=no
+Before=sysroot.mount
+After=initrd-root-device.target
+
+[Service]
+Type=oneshot
+ExecStart=/usr/bin/lvm-autosnap initrd_main
+RemainAfterExit=yes
+Restart=no
+StandardInput=tty
+StandardOutput=tty
