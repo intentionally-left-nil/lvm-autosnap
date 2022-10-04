@@ -38,18 +38,14 @@ cli_main () {
     exit 1
   fi
 
-  if [ "$#" -lt 1 ] ; then
-    usage
-    exit 1
-  fi
-
-  case "$1" in
+  case "${1:-"help"}" in
   (mark_good) cli_mark_good; return;;
   (list) cli_list_snapshots; return;;
   (create) cli_create_snapshot_group; return;;
   (delete) cli_delete_snapshot_group "${2:-}"; return;;
   (config) cli_print_config; return;;
   (initrd_main) initrd_main; return;;
+  (*) usage; exit 1;;
   esac
 }
 
